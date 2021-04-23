@@ -17,7 +17,8 @@ local MultiAcc = {
     Licensess = false
 }
 local Admins = {
-    'steam:11000011c08ec63'
+    'steam:2876463943f3rt',
+    'example'
 }
 
 AddEventHandler('TargetPlayerIsOnline', function(hex, id, reason, name)

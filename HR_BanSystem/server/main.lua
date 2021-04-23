@@ -266,7 +266,7 @@ function Informations()
     AllSteams = {}  
     AllLicenses = {}
 	MySQL.Async.fetchAll('SELECT * FROM plyrinfo',{},function (data)
-		for i=1, #data, 1 do
+	for i=1, #data, 1 do
             if data[i].WhiteList == 0 then
                 local Tokenzz = json.decode(data[i].tokens)
                 local Steamz = data[i].steam
@@ -276,8 +276,8 @@ function Informations()
                 end
                 table.insert(AllSteams, data[i].steam)
                 table.insert(AllLicenses, data[i].license)
-            end
-		end
+	    end
+	end
     end)
 end
 

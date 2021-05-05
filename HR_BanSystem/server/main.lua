@@ -63,12 +63,13 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin)
 end)
 
 AddEventHandler('playerConnecting', function(name, setKickReason)
-    if GetPlayerIdentifier(source, 1) == nil and GetPlayerIdentifier(source, 0) == nil then
-        setKickReason("\n \n HR_BanSystem: \n Your Steam Hex And Rockstar License Is nil")
-        CancelEvent()
+    local Info = ExtractIdentifiers(source)
+    local Steam = Info.steam
+    local Lice = Info.license
+    if Steam == nil or Lice == nil then
+    setKickReason("\n \n HR_BanSystem: \n Your Steam And Rockstar License Is nil")
+    CancelEvent()
     end
-    local Steam = GetPlayerIdentifier(source, 0)
-    local Lice = GetPlayerIdentifier(source, 1)
     PlayerTokens[Steam] = {}
     for i = 0, GetNumPlayerTokens(source) do 
         table.insert(PlayerTokens[Steam], GetPlayerToken(source, i))
@@ -123,9 +124,9 @@ end)
 RegisterServerEvent('HR_BanSystem:InsertMe')
 AddEventHandler('HR_BanSystem:InsertMe', function()
     local xPlayer = ESX.GetPlayerFromId(source)
-    local Hex = GetPlayerIdentifier(source, 0)
-    local Lices = GetPlayerIdentifier(source, 1)
-    print(Lices)
+    local Ident = ExtractIdentifiers(source)
+    local Hex = Ident.steam
+    local Lices = Ident.license
     DatabaseStuff[Hex] = {}
     for i = 0, GetNumPlayerTokens(source) do 
         table.insert(DatabaseStuff[Hex], GetPlayerToken(source, i))
@@ -306,4 +307,33 @@ function IsPlayerAllowedToBan(player)
 		end
 	end		
     return allowed
+end
+
+function ExtractIdentifiers(src)
+    local identifiers = {
+        steam = "",
+        ip = "",
+        discord = "",
+        license = "",
+        xbl = "",
+        live = ""
+    }
+    for i = 0, GetNumPlayerIdentifiers(src) - 1 do
+        local id = GetPlayerIdentifier(src, i)
+
+        if string.find(id, "steam") then
+            identifiers.steam = id
+        elseif string.find(id, "ip") then
+            identifiers.ip = id
+        elseif string.find(id, "discord") then
+            identifiers.discord = id
+        elseif string.find(id, "license") then
+            identifiers.license = id
+        elseif string.find(id, "xbl") then
+            identifiers.xbl = id
+        elseif string.find(id, "live") then
+            identifiers.live = id
+        end
+    end
+    return identifiers
 end

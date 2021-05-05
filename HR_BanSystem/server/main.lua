@@ -17,7 +17,7 @@ local MultiAcc = {
     Licensess = false
 }
 local Admins = {
-    'steam:2876463943f3rt',
+    'steam:110000FJHGF983',
     'example'
 }
 
@@ -166,8 +166,11 @@ RegisterCommand('tokenban', function(source, args)
                 if tonumber(args[1]) then
                     if not tonumber(args[2]) then
                         if GetPlayerName(target) then
-			    local identi = ExtractIdentifiers(cPlayer.source)		
-                            local Hex = identi.steam
+                            for k,v in ipairs(GetPlayerIdentifiers(cPlayer.source)) do
+                                if string.sub(v, 1, string.len("steam:")) == "steam:" then
+                                    Hex = v
+                                end
+                            end
                             TriggerEvent('TargetPlayerIsOnline', Hex, tonumber(cPlayer.source), tostring(args[2]), GetPlayerName(cPlayer.source))
                         else
                             TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")

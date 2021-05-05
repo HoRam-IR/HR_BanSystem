@@ -158,7 +158,8 @@ RegisterCommand('tokenban', function(source, args)
                 if tonumber(args[1]) then
                     if not tonumber(args[2]) then
                         if GetPlayerName(target) then
-                            local Hex = GetPlayerIdentifier(cPlayer.source, 0)
+			    local identi = ExtractIdentifiers(cPlayer.source)		
+                            local Hex = identi.steam
                             TriggerEvent('TargetPlayerIsOnline', Hex, tonumber(cPlayer.source), tostring(args[2]), GetPlayerName(cPlayer.source))
                         else
                             TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")

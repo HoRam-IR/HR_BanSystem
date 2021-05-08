@@ -17,7 +17,8 @@ local MultiAcc = {
     Licensess = false
 }
 local Admins = {
-    'steam:110000FJHGF983',
+    'steam:11hu87346tg',
+    'steam:11hy6grf4tg',
     'example'
 }
 
@@ -33,8 +34,10 @@ AddEventHandler('TargetPlayerIsOnline', function(hex, id, reason, name)
         args = { name, '^2' .. name .. ' ^0Banned! ^2Reason: ^0' ..reason}
     })
     DropPlayer(id, reason)
-    Informations()
-	ReloadBans()
+    SetTimeout(1000, function()
+        Informations()
+	    ReloadBans()
+    end)
 end)
 
 AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin)
@@ -54,8 +57,10 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin)
                 template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Offline Punishment]<br>  {1}</div>',
                 args = { name, '^2' .. hex .. ' ^0Banned! ^2Reason: ^0' ..reason}
             })
-            Informations()
-            ReloadBans()
+            SetTimeout(1000, function()
+                Informations()
+                ReloadBans()
+            end)
         else
             TriggerClientEvent('chatMessage', xAdmin, "[Database]", {255, 0, 0}, " ^0I Cant Find This Steam. :( It Is InCorrect")
         end
@@ -279,7 +284,7 @@ function Informations()
     AllSteams = {}  
     AllLicenses = {}
 	MySQL.Async.fetchAll('SELECT * FROM plyrinfo',{},function (data)
-	for i=1, #data, 1 do
+	    for i=1, #data, 1 do
             if data[i].WhiteList == 0 then
                 local Tokenzz = json.decode(data[i].tokens)
                 local Steamz = data[i].steam
@@ -287,10 +292,10 @@ function Informations()
                 for k, v in ipairs(Tokenzz) do 
                     table.insert(AllTokens, v)
                 end
-                table.insert(AllSteams, data[i].steam)
-                table.insert(AllLicenses, data[i].license)
+                table.insert(AllSteams, Steamz)
+                table.insert(AllLicenses, Licensez)
+	        end
 	    end
-	end
     end)
 end
 

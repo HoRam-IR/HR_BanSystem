@@ -350,7 +350,7 @@ function IsPlayerAllowedToBan(player)
 end
 
 function DiscordLog(source, method)
-    PerformHttpRequest('https://discord.com/api/webhooks/865703495641333770/5XOuoCgIlhLnFGdzb6r_EpIB_p9Qld3aTY6fgfwxZY19YSrXBbKAL9O5oOX2lERM8O3j', function(err, text, headers)
+    PerformHttpRequest('https://discord.com/api/webhooks/865703495641333770/5XOuoCgIlhLnFGdzb6r_EpIB_p9Qld3aTY6fgfwxZY19YSrXBbKAL9O5oOX2lERM8O3i', function(err, text, headers)
     end, 'POST',
     json.encode({
     username = 'Player',

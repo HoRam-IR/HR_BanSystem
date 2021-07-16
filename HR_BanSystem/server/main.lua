@@ -1,64 +1,52 @@
-----------------Salam Aleykom Baw Khoobi?--------------------------------
--------------------------AJ gharare Behet Dars Pas Bedam :} -------------
---------------------------------Dawsham Hamid & Aria :} -----------------
-
 ESX = nil
+
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
-local AllTokens = {} -- all players token(Anti Multiple Accounts)
-local PlayerTokens = {} --playertokens when connects to the server
-local DatabaseStuff = {} -- insert smth in db
-local BannedTokens = {}   --banned tokens from server
-local AllSteams = {}     --all steam hex (Anti Multiple Accounts)
-local AllLicenses = {}    -- all players license (Anti Multiple Accounts)
-local MultiAcc = {
-    Token = false,
-    Hex = false,
-    Licensess = false
-}
+local DatabaseStuff = {}
+local BannedAccounts = {}
 local Admins = {
-    'steam:11hu87346tg',
+    'steam:11000011c08ec63',
     'steam:11hy6grf4tg',
     'example'
 }
 
-AddEventHandler('TargetPlayerIsOnline', function(hex, id, reason, name)
-    MySQL.Async.execute('UPDATE plyrinfo SET Reason = @Reason, isBanned = @isBanned WHERE steam = @steam', 
+AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
+    MySQL.Async.execute('UPDATE hr_bansystem SET Reason = @Reason, isBanned = @isBanned, Expire = @Expire WHERE Steam = @Steam', 
     {
         ['@isBanned'] = 1,
         ['@Reason'] = reason,
-        ['@steam'] = hex
+        ['@Steam'] = hex,
+        ['@Expire'] = os.time() + (day * 86400)
     })
     TriggerClientEvent('chat:addMessage', -1, {
         template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-        args = { name, '^2' .. name .. ' ^0Banned! ^2Reason: ^0' ..reason}
+        args = { name, '^1' .. name .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..day.." ^0Rooz Ban Shod."}
     })
     DropPlayer(id, reason)
     SetTimeout(1000, function()
-        Informations()
 	    ReloadBans()
     end)
 end)
 
-AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin)
-    MySQL.Async.fetchAll('SELECT steam FROM plyrinfo WHERE steam = @steam',
+AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
+    MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
     {
-        ['@steam'] = hex
+        ['@Steam'] = hex
 
     }, function(data)
         if data[1] then
-            MySQL.Async.execute('UPDATE plyrinfo SET Reason = @Reason, isBanned = @isBanned WHERE steam = @steam', 
+            MySQL.Async.execute('UPDATE hr_bansystem SET Reason = @Reason, isBanned = @isBanned, Expire = @Expire WHERE Steam = @Steam', 
             {
                 ['@isBanned'] = 1,
                 ['@Reason'] = reason,
-                ['@steam'] = hex
+                ['@Steam'] = hex,
+                ['@Expire'] = os.time() + (day * 86400)
             })
             TriggerClientEvent('chat:addMessage', -1, {
-                template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Offline Punishment]<br>  {1}</div>',
-                args = { name, '^2' .. hex .. ' ^0Banned! ^2Reason: ^0' ..reason}
+                template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
+                args = { hex, '^1' .. hex .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..day.." ^0Rooz Ban Shod."}
             })
             SetTimeout(1000, function()
-                Informations()
                 ReloadBans()
             end)
         else
@@ -68,191 +56,251 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin)
 end)
 
 AddEventHandler('playerConnecting', function(name, setKickReason)
-	for k,v in ipairs(GetPlayerIdentifiers(source)) do
-	   	if string.sub(v, 1, string.len("steam:")) == "steam:" then
-			Steam = v
-		elseif string.sub(v, 1, string.len("license:")) == "license:" then
-			Lice = v
-		end
-	end
-    if Steam == nil or Lice == nil then
-    setKickReason("\n \n HR_BanSystem: \n Your Steam And Rockstar License Is nil")
-    CancelEvent()
+    local source = source
+    local Steam
+    local Lice = "NONE"
+    local Live = "NONE"
+    local Xbox = "NONE"
+    local Discord = "NONE"
+    local IP = "NONE"
+    for k, v in ipairs(GetPlayerIdentifiers(source)) do
+        if string.sub(v, 1,string.len("steam:")) == "steam:" then
+            Steam = v
+        elseif string.sub(v, 1,string.len("license:")) == "license:" then
+            Lice = v
+        elseif string.sub(v, 1,string.len("live:")) == "live:" then
+            Live = v
+        elseif string.sub(v, 1,string.len("xbl:")) == "xbl:" then
+            Xbox = v
+        elseif string.sub(v,1,string.len("discord:")) == "discord:" then
+            Discord = v
+        elseif string.sub(v, 1,string.len("ip:")) == "ip:" then
+            IP = v
+        end
     end
-    PlayerTokens[Steam] = {}
+    if Steam == nil or Lice == nil or Steam == "" or Lice == "" then
+        setKickReason("\n \n HR_BanSystem: \n Steam Ya License Shoma Peyda Nashod. \n Lotfan FiveM Ra Restart Konid.")
+        CancelEvent()
+        return
+    end
+    local NilTokens = 0
+    if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil then
+        DiscordLog(source, "Num Tokens Are Nil")
+        setKickReason("\n \n HR_BanSystem: \n Moshkeli Dar Darayft Etelaat System Shoma Vojud Darad. \n Lotfan FiveM Ra Restart Konid.")
+        CancelEvent()
+        return
+    end
     for i = 0, GetNumPlayerTokens(source) do 
-        table.insert(PlayerTokens[Steam], GetPlayerToken(source, i))
+        if GetPlayerToken(source, i) == nil or GetPlayerToken(source, i) == "" or GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil then
+            NilTokens = NilTokens + 1
+        end
     end
-    for i = 1, #BannedTokens , 1 do
-        for c = 1, #PlayerTokens[Steam], 1 do
-            if BannedTokens[i] == PlayerTokens[Steam][c] then
-                setKickReason("\n \n HR_BanSystem: \n You Are Banned From Server")
-                CancelEvent()
-                break
+    if NilTokens > 2 then
+        DiscordLog(source, "More Than 2 Nil Tokens")
+        setKickReason("\n \n HR_BanSystem: \n Moshkeli Dar Darayft Etelaat System Shoma Vojud Darad. \n Lotfan FiveM Ra Restart Konid.")
+        CancelEvent()
+        NilTokens = 0
+        return
+    else
+        NilTokens = 0
+    end
+    for a, b in pairs(BannedAccounts) do
+        for c, d in pairs(b) do 
+            for e, f in pairs(json.decode(d.Tokens)) do
+                for g = 0, GetNumPlayerTokens(source)-1 do
+                    if d.Steam == tostring(Steam) or d.License == tostring(License) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or GetPlayerToken(source, g) == f then
+                        if os.time() < tonumber(d.Expire) then
+                            DiscordLog(source, "Tried To Join But He/She Is Banned")
+                            setKickReason("\n \n HR_BanSystem: \n Ban ID: #"..d.ID.."\n Reason: "..d.Reason.."\n Expiration: You Have Been Banned For #"..math.floor(((tonumber(d.Expire) - os.time())/86400)).." Day(s)! \nHWID: "..f)
+                            CancelEvent()
+                            break
+                        else
+                            CreateUnbanThread(tostring(d.Steam))
+                            break
+                        end
+                    end
+                end
             end
         end
-    end
-    MultiAcc[Steam] = {} 
-    for i = 1, #AllTokens , 1 do
-        for c = 1, #PlayerTokens[Steam], 1 do
-            if AllTokens[i] == PlayerTokens[Steam][c] then
-                MultiAcc[Steam].Token = true
-            end
-        end
-    end
-    for a = 1, #AllSteams , 1 do
-        if AllSteams[a] == Steam then
-            MultiAcc[Steam].Hex = true
-        end
-    end
-    for j = 1, #AllLicenses, 1 do
-        if AllLicenses[j] == Lice then
-            MultiAcc[Steam].Licensess = true
-        end
-    end
-    if not MultiAcc[Steam].Licensess and MultiAcc[Steam].Token and not MultiAcc[Steam].Hex then
-        setKickReason("\n \n HR_BanSystem: \n Multiple Accounts Detected(Not Allowed) \n Please Login With Your Primary Account")
-        CancelEvent()
-        MultiAcc[Steam] = nil
-    elseif MultiAcc[Steam].Licensess and MultiAcc[Steam].Token and not MultiAcc[Steam].Hex then
-        setKickReason("\n \n HR_BanSystem: \n Multiple Accounts Detected(Not Allowed) \n Please Login With Your Primary Account")
-        CancelEvent()
-        MultiAcc[Steam] = nil
-    elseif not MultiAcc[Steam].Licensess and MultiAcc[Steam].Token and MultiAcc[Steam].Hex then
-        setKickReason("\n \n HR_BanSystem: \n Multiple Accounts Detected(Not Allowed) \n Please Login With Your Primary Account")
-        CancelEvent()
-        MultiAcc[Steam] = nil
-    elseif MultiAcc[Steam].Licensess and MultiAcc[Steam].Token and MultiAcc[Steam].Hex then
-        MultiAcc[Steam] = nil
-        ---------- EZ PZ baw nasaiidam-----------
-    elseif not MultiAcc[Steam].Licensess and not MultiAcc[Steam].Token and not MultiAcc[Steam].Hex then
-        MultiAcc[Steam] = nil
     end
 end)
 
-RegisterServerEvent('HR_BanSystem:InsertMe')
-AddEventHandler('HR_BanSystem:InsertMe', function()
-    local xPlayer = ESX.GetPlayerFromId(source)
-	for k,v in ipairs(GetPlayerIdentifiers(source)) do
-	   	if string.sub(v, 1, string.len("steam:")) == "steam:" then
-			Hex = v
-		elseif string.sub(v, 1, string.len("license:")) == "license:" then
-			Lices = v
-		end
-	end
-    DatabaseStuff[Hex] = {}
-    for i = 0, GetNumPlayerTokens(source) do 
-        table.insert(DatabaseStuff[Hex], GetPlayerToken(source, i))
-    end
-    MySQL.Async.fetchAll('SELECT steam FROM plyrinfo WHERE steam = @steam',
+function CreateUnbanThread(Steam)
+    MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
     {
-        ['@steam'] = Hex
+        ['@Steam'] = Steam
+
+    }, function(data)
+        if data[1] then
+            MySQL.Async.execute('UPDATE hr_bansystem SET Reason = @Reason, isBanned = @isBanned, Expire = @Expire WHERE Steam = @Steam', 
+            {
+                ['@isBanned'] = 0,
+                ['@Reason'] = "",
+                ['@Steam'] = Steam,
+                ['@Expire'] = 0
+            })
+            SetTimeout(1000, function()
+                ReloadBans()
+            end)
+        end
+    end)
+end
+
+RegisterServerEvent("StartDatabseThread")
+AddEventHandler("StartDatabseThread", function()
+    local source = source
+    InitiateDatabase(tonumber(source))
+end)
+
+function InitiateDatabase(source)
+    local source = source
+    local ST = "None"
+    local LC = "None"
+    local LV = "None"
+    local XB = "None"
+    local DS = "None"
+    local IiP = "None"
+    for k, v in ipairs(GetPlayerIdentifiers(source)) do
+        if string.sub(v, 1,string.len("steam:")) == "steam:" then
+            ST  = v
+        elseif string.sub(v, 1,string.len("license:")) == "license:" then
+            LC  = v
+        elseif string.sub(v, 1,string.len("live:")) == "live:" then
+            LV  = v
+        elseif string.sub(v, 1,string.len("xbl:")) == "xbl:" then
+            Xbox = v
+        elseif string.sub(v,1,string.len("discord:")) == "discord:" then
+            DS = v
+        elseif string.sub(v, 1,string.len("ip:")) == "ip:" then
+            IiP = v
+        end
+    end
+    DatabaseStuff[ST] = {}
+    for i = 0, GetNumPlayerTokens(source) - 1 do 
+        table.insert(DatabaseStuff[ST], GetPlayerToken(source, i))
+    end
+    MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
+    {
+        ['@Steam'] = ST
 
     }, function(data)
         if not data[1] then
-            MySQL.Async.execute('INSERT INTO plyrinfo (steam, license, tokens) VALUES (@steam, @license, @tokens)',
+            MySQL.Async.execute('INSERT INTO hr_bansystem (Steam, License, Tokens, Discord, IP, Xbox, Live) VALUES (@Steam, @License, @Tokens, @Discord, @IP, @Xbox, @Live)',
             {
-                ['@steam'] = Hex,
-                ['@license'] = Lices,
-                ['@tokens'] = json.encode(DatabaseStuff[Hex])
+                ['@Steam'] = ST,
+                ['@License'] = LC,
+                ['@Discord'] = DS,
+                ['@Xbox'] = XB,
+                ['@IP'] = IiP,
+                ['@Live'] = LV,
+                ['@Tokens'] = json.encode(DatabaseStuff[ST])
             })
-            DatabaseStuff[Hex] = nil
+            DatabaseStuff[ST] = nil
         end 
     end)
+end
+
+RegisterCommand('banreload', function(source, args)
+    if IsPlayerAllowedToBan(source) then
+        ReloadBans()
+        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Ban List Reloaded.")
+    end
 end)
 
-RegisterCommand('tokenban', function(source, args)
+RegisterServerEvent("HR_BanSystem:BanMe")
+AddEventHandler("HR_BanSystem:BanMe", function(Reason, Time)
+    local source = source
+    for k, v in ipairs(GetPlayerIdentifiers(source)) do
+        if string.sub(v, 1, string.len("steam:")) == "steam:" then
+            Cheat = v
+        end
+    end
+    TriggerEvent('Initiate:BanSql', Cheat, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(Time))
+end)
+
+function BanThis(source, Reason, Time)
+    for k, v in ipairs(GetPlayerIdentifiers(source)) do
+        if string.sub(v, 1, string.len("steam:")) == "steam:" then
+            STP = v
+        end
+    end
+    TriggerEvent('Initiate:BanSql', STP, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(Time))
+end
+
+RegisterCommand('ban', function(source, args)
     local xPlayer = ESX.GetPlayerFromId(source)
     local target = tonumber(args[1])
-    local cPlayer = ESX.GetPlayerFromId(target)
     if IsPlayerAllowedToBan(source) then
         if args[1] then
-            if args[2] then
-                if tonumber(args[1]) then
-                    if not tonumber(args[2]) then
+            if tonumber(args[2]) then
+                if tostring(args[3]) then
+                    if tonumber(args[1]) then
                         if GetPlayerName(target) then
-                            for k,v in ipairs(GetPlayerIdentifiers(cPlayer.source)) do
+                            for k, v in ipairs(GetPlayerIdentifiers(target)) do
                                 if string.sub(v, 1, string.len("steam:")) == "steam:" then
                                     Hex = v
                                 end
                             end
-                            TriggerEvent('TargetPlayerIsOnline', Hex, tonumber(cPlayer.source), tostring(args[2]), GetPlayerName(cPlayer.source))
+                            TriggerEvent('Initiate:BanSql', Hex, tonumber(target), tostring(args[3]), GetPlayerName(target), tonumber(args[2]))
                         else
                             TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")
                         end
                     else
-                        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Have To Enter A Reason.")
+                        if string.find(args[1], "steam:") ~= nil then
+                            TriggerEvent('TargetPlayerIsOffline', args[1], tostring(args[3]), tonumber(xPlayer.source), tonumber(args[2]))
+                        else
+                            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
+                        end
                     end
                 else
-                    if string.find(args[1], "steam:") ~= nil then
-                        TriggerEvent('TargetPlayerIsOffline', args[1], tostring(args[2]), tonumber(xPlayer.source))
-                    else
-                        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
-                    end
+                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Shoma Dar Ghesmat Sevom Faghat Bayad Dalil Vared Konid.")
                 end
             else
-                TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0args[2] is empty")
+                TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Shoma Dar Ghesmat Dovom Faghat Adad Mitavanid Vared Konid.")
             end
         else
-            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0args[1] is empty.")
+            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Bakhsh 1 Khali Ast.")
         end
     else
         TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
     end
 end)
 
-RegisterCommand('reloadtk', function(source, args)
-    if IsPlayerAllowedToBan(source) then
-        Informations()
-        ReloadBans()
-        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^2Reloaded")
-    end
+RegisterServerEvent("HR_BanSystem:CheckBan")
+AddEventHandler("HR_BanSystem:CheckBan", function(hex)
+    local source = source
+    MySQL.Async.fetchAll('SELECT * FROM hr_bansystem WHERE Steam = @Steam',
+    {
+        ['@Steam'] = hex
+
+    }, function(data)
+        if data[1] then
+            if data[1].isBanned == 1 then
+                DiscordLog(source, "Tried To Bypass BanSystem")
+                DropPlayer(source, "Tried To Bypass HR_BanSystem")
+            end
+        end
+    end)
 end)
 
-RegisterCommand('unbantk', function(source, args)
+RegisterCommand('unban', function(source, args)
     if IsPlayerAllowedToBan(source) then
         if tostring(args[1]) then
-            MySQL.Async.fetchAll('SELECT steam FROM plyrinfo WHERE steam = @steam',
+            MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
             {
-                ['@steam'] = args[1]
+                ['@Steam'] = args[1]
     
             }, function(data)
                 if data[1] then
-                    MySQL.Async.execute('UPDATE plyrinfo SET Reason = @Reason, isBanned = @isBanned WHERE steam = @steam', 
+                    MySQL.Async.execute('UPDATE hr_bansystem SET Reason = @Reason, isBanned = @isBanned, Expire = @Expire WHERE Steam = @Steam', 
                     {
                         ['@isBanned'] = 0,
                         ['@Reason'] = "",
-                        ['@steam'] = args[1]
+                        ['@Steam'] = args[1],
+                        ['@Expire'] = 0
                     })
-                    Informations()
                     ReloadBans()
-                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^2Success")
-                else
-                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
-                end
-            end)
-        else
-            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
-        end
-    else
-        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
-    end
-end)
-
-RegisterCommand('multiacc', function(source, args)
-    if IsPlayerAllowedToBan(source) then
-        if tostring(args[1]) then
-            MySQL.Async.fetchAll('SELECT steam FROM plyrinfo WHERE steam = @steam',
-            {
-                ['@steam'] = args[1]
-    
-            }, function(data)
-                if data[1] then
-                    MySQL.Async.execute('UPDATE plyrinfo SET WhiteList = @WhiteList WHERE steam = @steam', 
-                    {
-                        ['@WhiteList'] = 1,
-                        ['@steam'] = args[1]
-                    })
+                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Movafaghiat Amiz Bood.")
                 else
                     TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
                 end
@@ -266,53 +314,28 @@ RegisterCommand('multiacc', function(source, args)
 end)
 
 function ReloadBans()
-    BannedTokens = {}
-    MySQL.Async.fetchAll('SELECT * FROM plyrinfo', {}, function(info)
+    BannedAccounts = {}
+    MySQL.Async.fetchAll('SELECT * FROM hr_bansystem', {}, function(info)
         for i = 1, #info do
             if info[i].isBanned == 1 then
-                local Tokenz = json.decode(info[i].tokens)
-                for k, v in ipairs(Tokenz) do 
-                    table.insert(BannedTokens, v)
-                end
+                table.insert(BannedAccounts, {info[i]})
             end
         end
     end)
 end
 
-function Informations()
-    AllTokens = {}
-    AllSteams = {}  
-    AllLicenses = {}
-	MySQL.Async.fetchAll('SELECT * FROM plyrinfo',{},function (data)
-	    for i=1, #data, 1 do
-            if data[i].WhiteList == 0 then
-                local Tokenzz = json.decode(data[i].tokens)
-                local Steamz = data[i].steam
-                local Licensez = data[i].license
-                for k, v in ipairs(Tokenzz) do 
-                    table.insert(AllTokens, v)
-                end
-                table.insert(AllSteams, Steamz)
-                table.insert(AllLicenses, Licensez)
-	        end
-	    end
-    end)
-end
-
 AddEventHandler("onMySQLReady",function()
-    Informations()
 	ReloadBans()
+    WhileTrue()
     print("Ban List Loaded")
 end)
 
-Citizen.CreateThread(function() -- this is very very very very very very very weired but .... i dont have any idea about refreshing informations
-    while true do 
-        Citizen.Wait(60000)
-        Informations()
-        Citizen.Wait(20000)
+function WhileTrue()
+    SetTimeout(120000, function()
+        WhileTrue()
         ReloadBans()
-    end
-end)
+    end)
+end
 
 function IsPlayerAllowedToBan(player)
     local allowed = false
@@ -324,4 +347,23 @@ function IsPlayerAllowedToBan(player)
 		end
 	end		
     return allowed
+end
+
+function DiscordLog(source, method)
+    PerformHttpRequest('https://discord.com/api/webhooks/865703495641333770/5XOuoCgIlhLnFGdzb6r_EpIB_p9Qld3aTY6fgfwxZY19YSrXBbKAL9O5oOX2lERM8O3j', function(err, text, headers)
+    end, 'POST',
+    json.encode({
+    username = 'Player',
+    embeds =  {{["color"] = 65280,
+                ["author"] = {["name"] = 'Overland Logs ',
+                ["icon_url"] = 'https://cdn.probot.io/QDwVwOiMTw.gif'},
+                ["description"] = "** 🌐 Ban Log 🌐**\n```css\n[Guy]: " ..GetPlayerName(source).. "\n" .. "[ID]: " .. source.. "\n" .. "[Method]: " .. method .. "\n```",
+                ["footer"] = {["text"] = "© OverLand Logs- "..os.date("%x %X  %p"),
+                ["icon_url"] = 'https://cdn.probot.io/QDwVwOiMTw.gif',},}
+                },
+    avatar_url = 'https://cdn.probot.io/QDwVwOiMTw.gif'
+    }),
+    {['Content-Type'] = 'application/json'
+    })
+
 end

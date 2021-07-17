@@ -9,6 +9,7 @@ end)
 
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
+    TriggerServerEvent("StartDatabseThread")
     TriggerEvent('chat:addSuggestion', '/ban', 'Ban a Player', {
         { name="ID / Steam", help="ID Or SteamHex" },
         { name="Days", help="Moddat Zaman Ban"},

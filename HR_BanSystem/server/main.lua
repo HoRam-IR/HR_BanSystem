@@ -5,7 +5,7 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 local DatabaseStuff = {}
 local BannedAccounts = {}
 local Admins = {
-    'steam:11000011c08ec63',
+    'steam:11000011c083r63',
     'steam:11hy6grf4tg',
     'example'
 }
@@ -350,16 +350,16 @@ function IsPlayerAllowedToBan(player)
 end
 
 function DiscordLog(source, method)
-    PerformHttpRequest('https://discord.com/api/webhooks/865703495641333770/5XOuoCgIlhLnFGdzb6r_EpIB_p9Qld3aTY6fgfwxZY19YSrXBbKAL9O5oOX2lERM8O3i', function(err, text, headers)
+    PerformHttpRequest('', function(err, text, headers)
     end, 'POST',
     json.encode({
     username = 'Player',
     embeds =  {{["color"] = 65280,
-                ["author"] = {["name"] = 'Overland Logs ',
-                ["icon_url"] = 'https://cdn.probot.io/QDwVwOiMTw.gif'},
+                ["author"] = {["name"] = 'Advanced Logs ',
+                ["icon_url"] = ''},
                 ["description"] = "** 🌐 Ban Log 🌐**\n```css\n[Guy]: " ..GetPlayerName(source).. "\n" .. "[ID]: " .. source.. "\n" .. "[Method]: " .. method .. "\n```",
-                ["footer"] = {["text"] = "© OverLand Logs- "..os.date("%x %X  %p"),
-                ["icon_url"] = 'https://cdn.probot.io/QDwVwOiMTw.gif',},}
+                ["footer"] = {["text"] = "© Logs- "..os.date("%x %X  %p"),
+                ["icon_url"] = '',},}
                 },
     avatar_url = 'https://cdn.probot.io/QDwVwOiMTw.gif'
     }),

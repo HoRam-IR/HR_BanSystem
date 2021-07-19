@@ -5,6 +5,7 @@ Citizen.CreateThread(function()
         TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
         Citizen.Wait(0)
     end
+    TriggerServerEvent("StartDatabaseThread")
 end)
 
 RegisterNetEvent('esx:playerLoaded')

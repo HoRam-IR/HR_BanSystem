@@ -7,9 +7,9 @@ local isBypassing = false
 local DatabaseStuff = {}
 local BannedAccounts = {}
 local Admins = {
-    'steam:11000011c08ec63',
-    'steam:110000145f62627',
-	'steam:110000136116ed8'
+    'steam:',
+    'steam:',
+    'steam:',
 }
 
 AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
@@ -378,7 +378,7 @@ function IsPlayerAllowedToBan(player)
 end
 
 function DiscordLog(source, method)
-    PerformHttpRequest('https://discord.com/api/webhooks/865703495641333770/5XOuoCgIlhLnFGdzb6r_EpIB_p9Qld3aTY6fgfwxZY19YSrXBbKAL9O5oOX2lERM8O3j', function(err, text, headers)
+    PerformHttpRequest('', function(err, text, headers)
     end, 'POST',
     json.encode({
     username = 'Player',

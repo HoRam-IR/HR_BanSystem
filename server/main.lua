@@ -153,8 +153,12 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
     if isBypassing then
         DiscordLog(source, "Tried To Join Using Bypass Method")
         InitiateDatabase(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (200 * 86400), true)
-        isBypassing = false
+        SetTimeout(10000, function()
+            isBypassing = false
+        end)
         ReloadBans()
+        setKickReason("\n \n HR_BanSystem: \n You Are Banned")
+        CancelEvent()
     end
 end)
 
@@ -216,12 +220,12 @@ function InitiateDatabase(source, reason, expire, Banned)
     for i = 0, GetNumPlayerTokens(source) - 1 do 
         table.insert(DatabaseStuff[ST], GetPlayerToken(source, i))
     end
-    MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
+    MySQL.Async.fetchAll('SELECT * FROM hr_bansystem WHERE Steam = @Steam',
     {
         ['@Steam'] = ST
 
-    }, function(data)
-        if not data[1] then
+    }, function(data) 
+        if not data[1].Steam then
             MySQL.Async.execute('INSERT INTO hr_bansystem (Steam, License, Tokens, Discord, IP, Xbox, Live, Reason, Expire, isBanned) VALUES (@Steam, @License, @Tokens, @Discord, @IP, @Xbox, @Live, @Reason, @Expire, @isBanned)',
             {
                 ['@Steam'] = ST,
@@ -236,6 +240,13 @@ function InitiateDatabase(source, reason, expire, Banned)
                 ['@isBanned'] = Banned
             })
             DatabaseStuff[ST] = nil
+        elseif isBypassing and data[1].Steam and data[1].isBanned == 0 then 
+            MySQL.Async.execute('UPDATE hr_bansystem SET isBanned = @isBanned WHERE Steam = @Steam',
+            {
+                ['@Steam'] = ST
+                ['@isBanned'] = 1
+            })
+            ReloadBans()
         end 
     end)
 end

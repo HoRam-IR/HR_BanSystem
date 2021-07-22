@@ -10,8 +10,12 @@ local BannedAccounts = {}
 local Admins = {
     'steam:',
     'steam:',
-	'steam:',
+    'steam:',
 }
+
+AddEventHandler('playerDropped', function()
+    print(json.encode(ESX.GetPlayerFromId(source).loadout))
+end)
 
 AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
     MySQL.Async.execute('UPDATE hr_bansystem SET Reason = @Reason, isBanned = @isBanned, Expire = @Expire WHERE Steam = @Steam', 
@@ -225,7 +229,7 @@ function InitiateDatabase(source, reason, expire, Banned)
         ['@Steam'] = ST
 
     }, function(data) 
-        if not data[1].Steam then
+        if data[1] == nil then
             MySQL.Async.execute('INSERT INTO hr_bansystem (Steam, License, Tokens, Discord, IP, Xbox, Live, Reason, Expire, isBanned) VALUES (@Steam, @License, @Tokens, @Discord, @IP, @Xbox, @Live, @Reason, @Expire, @isBanned)',
             {
                 ['@Steam'] = ST,
@@ -240,10 +244,10 @@ function InitiateDatabase(source, reason, expire, Banned)
                 ['@isBanned'] = Banned
             })
             DatabaseStuff[ST] = nil
-        elseif isBypassing and data[1].Steam and data[1].isBanned == 0 then 
+        elseif isBypassing and data[1] and data[1].isBanned == 0 then 
             MySQL.Async.execute('UPDATE hr_bansystem SET isBanned = @isBanned WHERE Steam = @Steam',
             {
-                ['@Steam'] = ST
+                ['@Steam'] = ST,
                 ['@isBanned'] = 1
             })
             ReloadBans()
@@ -278,7 +282,7 @@ function BanThis(source, Reason, Time)
     TriggerEvent('Initiate:BanSql', STP, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(Time))
 end
 
-RegisterCommand('ban', function(source, args)
+RegisterCommand('tban', function(source, args)
     local xPlayer = ESX.GetPlayerFromId(source)
     local target = tonumber(args[1])
     if IsPlayerAllowedToBan(source) then
@@ -334,7 +338,7 @@ AddEventHandler("HR_BanSystem:CheckBan", function(hex)
     end)
 end)
 
-RegisterCommand('unban', function(source, args)
+RegisterCommand('tunban', function(source, args)
     if IsPlayerAllowedToBan(source) then
         if tostring(args[1]) then
             MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',

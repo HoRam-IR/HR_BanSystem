@@ -15,21 +15,66 @@ local Admins = {
 
 AddEventHandler('esx:playerLoaded', function(source)
     local source = source
-    MySQL.Async.fetchAll('SELECT * FROM hr_bansystem WHERE Steam = @Steam',
-    {
-        ['@Steam'] = GetPlayerIdentifier(source)
-
-    }, function(data)
-        if data[1] then
-            if data[1].isBanned == 1 then
-                DiscordLog(source, "Tried To Bypass BanSystem(Method Jadid)")
-                DropPlayer(source, "Tried To Bypass HR_BanSystem")
+    local Steam = "NONE"
+    local Lice = "NONE"
+    local Live = "NONE"
+    local Xbox = "NONE"
+    local Discord = "NONE"
+    local IP = "NONE"
+    for k, v in ipairs(GetPlayerIdentifiers(source)) do
+        if string.sub(v, 1,string.len("steam:")) == "steam:" then
+            Steam = v
+        elseif string.sub(v, 1,string.len("license:")) == "license:" then
+            Lice = v
+        elseif string.sub(v, 1,string.len("live:")) == "live:" then
+            Live = v
+        elseif string.sub(v, 1,string.len("xbl:")) == "xbl:" then
+            Xbox = v
+        elseif string.sub(v,1,string.len("discord:")) == "discord:" then
+            Discord = v
+        elseif string.sub(v, 1,string.len("ip:")) == "ip:" then
+            IP = v
+        end
+    end
+    if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil or GetNumPlayerTokens(source) < 0 or GetNumPlayerTokens(source) == "null" or GetNumPlayerTokens(source) == "**Invalid**" or not GetNumPlayerTokens(source) then
+        DiscordLog(source, "Max Token Numbers Are nil")
+        DropPlayer(source, "HR_BanSystem: \n Moshkeli Dar Darayft Etelaat System Shoma Vojud Darad. \n Lotfan FiveM Ra Restart Konid.")
+        CancelEvent()
+        return
+    end
+    for a, b in pairs(BannedAccounts) do
+        for c, d in pairs(b) do 
+            for e, f in pairs(json.decode(d.Tokens)) do
+                for g = 0, GetNumPlayerTokens(source) - 1 do
+                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
+                        if os.time() < tonumber(d.Expire) then
+                            BannedAlready = true
+                            if d.Steam ~= tostring(Steam) then
+                                isBypassing = true
+                            end
+                            break
+                        else
+                            break
+                        end
+                    end
+                end
             end
         end
-    end)
-    if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil or GetNumPlayerTokens(source) < 0 or GetNumPlayerTokens(source) == "null" or GetNumPlayerTokens(source) == "**Invalid**" or not GetNumPlayerTokens(source) then
-        DiscordLog(source, "Max Token Numbers Are nil(Method Jadid)")
-        DropPlayer(source, "Soltan Gham, Boro FiveM Beband Dobare Bia")
+    end
+    if not BannedAlready and not isBypassing then
+        InitiateDatabase(tonumber(source))
+    end
+    if BannedAlready then
+        BannedAlready = false
+        DiscordLog(source, "Tried To Join But He/She Is Banned(Jadid)")
+	DropPlayer(source, "Tried To Bypass HR_BanSystem")
+    end
+    if isBypassing then
+        isBypassing = false
+        DiscordLog(source, "Tried To Join Using Bypass Method(Jadid)")
+        BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
+        ReloadBans()
+	DropPlayer(source, "Tried To Bypass HR_BanSystem")
     end
 end)
 

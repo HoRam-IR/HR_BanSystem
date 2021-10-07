@@ -1,9 +1,9 @@
 fx_version 'cerulean'
 game 'gta5' 
 
-author '^HoRam#1400'
+author '^HoRam#0060'
 description 'BanSystem'
-version '1.2.0'
+version '2.6.0'
 
 client_scripts {
     'client/main.lua',

@@ -4,13 +4,14 @@ TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 local JoinCoolDown = {}
 local BannedAlready = false
+local BannedAlready2 = false
 local isBypassing = false
+local isBypassing2 = false
 local DatabaseStuff = {}
 local BannedAccounts = {}
 local Admins = {
-    'steam:',
-    'steam:',
-    'steam:',
+    "steam:11000",
+    "example",
 }
 
 AddEventHandler('esx:playerLoaded', function(source)
@@ -39,7 +40,6 @@ AddEventHandler('esx:playerLoaded', function(source)
     if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil or GetNumPlayerTokens(source) < 0 or GetNumPlayerTokens(source) == "null" or GetNumPlayerTokens(source) == "**Invalid**" or not GetNumPlayerTokens(source) then
         DiscordLog(source, "Max Token Numbers Are nil")
         DropPlayer(source, "HR_BanSystem: \n Moshkeli Dar Darayft Etelaat System Shoma Vojud Darad. \n Lotfan FiveM Ra Restart Konid.")
-        CancelEvent()
         return
     end
     for a, b in pairs(BannedAccounts) do
@@ -48,12 +48,13 @@ AddEventHandler('esx:playerLoaded', function(source)
                 for g = 0, GetNumPlayerTokens(source) - 1 do
                     if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
                         if os.time() < tonumber(d.Expire) then
-                            BannedAlready = true
+                            BannedAlready2 = true
                             if d.Steam ~= tostring(Steam) then
-                                isBypassing = true
+                                isBypassing2 = true
                             end
                             break
                         else
+                            CreateUnbanThread(tostring(d.Steam))
                             break
                         end
                     end
@@ -61,20 +62,16 @@ AddEventHandler('esx:playerLoaded', function(source)
             end
         end
     end
-    if not BannedAlready and not isBypassing then
-        InitiateDatabase(tonumber(source))
+    if BannedAlready2 then
+        BannedAlready2 = false
+        DiscordLog(source, "Tried To Join But He/She Is Banned (Roo Hava)")
+	    DropPlayer(source, "Shoma Az Server Ban Boodid, Be Hamin Dalil Kick Shodid.")
     end
-    if BannedAlready then
-        BannedAlready = false
-        DiscordLog(source, "Tried To Join But He/She Is Banned(Jadid)")
-	DropPlayer(source, "Tried To Bypass HR_BanSystem")
-    end
-    if isBypassing then
-        isBypassing = false
-        DiscordLog(source, "Tried To Join Using Bypass Method(Jadid)")
+    if isBypassing2 then
+        isBypassing2 = false
+        DiscordLog(source, "Tried To Join Using Bypass Method (Roo Hava)")
         BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
-        ReloadBans()
-	DropPlayer(source, "Tried To Bypass HR_BanSystem")
+	    DropPlayer(source, "Shoma Az Server Ban Boodid, Be Hamin Dalil Kick Shodid.")
     end
 end)
 
@@ -91,8 +88,8 @@ AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
         args = { name, '^1' .. name .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..day.." ^0Rooz Ban Shod."}
     })
     DropPlayer(id, reason)
-    SetTimeout(1500, function()
-	    ReloadBans()
+    SetTimeout(5000, function()
+        ReloadBans()
     end)
 end)
 
@@ -114,7 +111,7 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
                 template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
                 args = { hex, '^1' .. hex .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..day.." ^0Rooz Ban Shod."}
             })
-            SetTimeout(1500, function()
+            SetTimeout(5000, function()
                 ReloadBans()
             end)
         else
@@ -146,7 +143,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
             IP = v
         end
     end
-    if Steam == nil or Lice == nil or Steam == "" or Lice == "" then
+    if Steam == nil or Lice == nil or Steam == "" or Lice == "" or Steam == "NONE" or Lice == "NONE" then
         setKickReason("\n \n HR_BanSystem: \n Steam Ya Rockstar License Shoma Peyda Nashod. \n Lotfan FiveM Ra Restart Konid.")
         CancelEvent()
         return
@@ -199,7 +196,6 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         isBypassing = false
         DiscordLog(source, "Tried To Join Using Bypass Method")
         BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
-        ReloadBans()
     end
 end)
 
@@ -217,7 +213,7 @@ function CreateUnbanThread(Steam)
                 ['@Steam'] = Steam,
                 ['@Expire'] = 0
             })
-            SetTimeout(1000, function()
+            SetTimeout(5000, function()
                 ReloadBans()
             end)
         end
@@ -247,6 +243,7 @@ function InitiateDatabase(source)
             IiP = v
         end
     end
+    if ST == "None" then print(source.." Failed To Create User") return end
     DatabaseStuff[ST] = {}
     for i = 0, GetNumPlayerTokens(source) - 1 do 
         table.insert(DatabaseStuff[ST], GetPlayerToken(source, i))
@@ -298,6 +295,7 @@ function BanNewAccount(source, Reason, Time)
             IiP = v
         end
     end
+    if ST == "None" then print(source.." Failed To Create User") return end
     DatabaseStuff[ST] = {}
     for i = 0, GetNumPlayerTokens(source) - 1 do 
         table.insert(DatabaseStuff[ST], GetPlayerToken(source, i))
@@ -322,12 +320,15 @@ function BanNewAccount(source, Reason, Time)
                 ['@isBanned'] = 1
             })
             DatabaseStuff[ST] = nil
+            SetTimeout(5000, function()
+                ReloadBans()
+            end)
         end 
     end)
 end
 
 RegisterCommand('banreload', function(source, args)
-    if IsPlayerAllowedToBan(source) then
+    if IsPlayerAllowedToBan(source) or source == 0 then
         ReloadBans()
         TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Ban List Reloaded.")
     end
@@ -344,19 +345,23 @@ AddEventHandler("HR_BanSystem:BanMe", function(Reason, Time)
     TriggerEvent('Initiate:BanSql', Cheat, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(Time))
 end)
 
-function BanThis(source, Reason, Time)
+function BanThis(source, Reason, Times)
+    local time = Times
     for k, v in ipairs(GetPlayerIdentifiers(source)) do
         if string.sub(v, 1, string.len("steam:")) == "steam:" then
             STP = v
         end
     end
-    TriggerEvent('Initiate:BanSql', STP, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(Time))
+    if Times == nil or not Times then
+        time = 365
+    end
+    TriggerEvent('Initiate:BanSql', STP, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(time))
 end
 
 RegisterCommand('ban', function(source, args)
     local xPlayer = ESX.GetPlayerFromId(source)
     local target = tonumber(args[1])
-    if IsPlayerAllowedToBan(source) then
+    if IsPlayerAllowedToBan(source) or source == 0 then
         if args[1] then
             if tonumber(args[2]) then
                 if tostring(args[3]) then
@@ -367,13 +372,13 @@ RegisterCommand('ban', function(source, args)
                                     Hex = v
                                 end
                             end
-                            TriggerEvent('Initiate:BanSql', Hex, tonumber(target), tostring(args[3]), GetPlayerName(target), tonumber(args[2]))
+                            TriggerEvent('Initiate:BanSql', Hex, tonumber(target), table.concat(args, " ",3), GetPlayerName(target), tonumber(args[2]))
                         else
                             TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")
                         end
                     else
                         if string.find(args[1], "steam:") ~= nil then
-                            TriggerEvent('TargetPlayerIsOffline', args[1], tostring(args[3]), tonumber(xPlayer.source), tonumber(args[2]))
+                            TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), tonumber(args[2]))
                         else
                             TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
                         end
@@ -388,7 +393,9 @@ RegisterCommand('ban', function(source, args)
             TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Bakhsh 1 Khali Ast.")
         end
     else
-        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+        if source ~= 0 then
+            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+        end
     end
 end)
 
@@ -403,14 +410,14 @@ AddEventHandler("HR_BanSystem:CheckBan", function(hex)
         if data[1] then
             if data[1].isBanned == 1 then
                 DiscordLog(source, "Tried To Bypass BanSystem(KVP)")
-                DropPlayer(source, "Tried To Bypass HR_BanSystem")
+                DropPlayer(source, "Shoma Az Server Ban Boodid, Ba Hamin Dalil Kick Shodid.")
             end
         end
     end)
 end)
 
 RegisterCommand('unban', function(source, args)
-    if IsPlayerAllowedToBan(source) then
+    if IsPlayerAllowedToBan(source) or source == 0 then
         if tostring(args[1]) then
             MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
             {
@@ -425,7 +432,9 @@ RegisterCommand('unban', function(source, args)
                         ['@Steam'] = args[1],
                         ['@Expire'] = 0
                     })
-                    ReloadBans()
+                    SetTimeout(5000, function()
+                        ReloadBans()
+                    end)
                     TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Movafaghiat Amiz Bood.")
                 else
                     TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
@@ -435,33 +444,30 @@ RegisterCommand('unban', function(source, args)
             TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
         end
     else
-        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+        if source ~= 0 then
+            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+        end
     end
 end)
 
 function ReloadBans()
-    BannedAccounts = {}
-    MySQL.Async.fetchAll('SELECT * FROM hr_bansystem', {}, function(info)
-        for i = 1, #info do
-            if info[i].isBanned == 1 then
-                table.insert(BannedAccounts, {info[i]})
+    Citizen.CreateThread(function()
+        BannedAccounts = {}
+        MySQL.Async.fetchAll('SELECT * FROM hr_bansystem', {}, function(info)
+            for i = 1, #info do
+                if info[i].isBanned == 1 then
+                    Citizen.Wait(2)
+                    table.insert(BannedAccounts, {info[i]})
+                end
             end
-        end
+        end)
     end)
 end
 
-AddEventHandler("onMySQLReady",function()
+MySQL.ready(function()
 	ReloadBans()
-    WhileTrue()
     print("Ban List Loaded")
 end)
-
-function WhileTrue()
-    SetTimeout(120000, function()
-        WhileTrue()
-        ReloadBans()
-    end)
-end
 
 function IsPlayerAllowedToBan(player)
     local allowed = false
@@ -481,13 +487,13 @@ function DiscordLog(source, method)
     json.encode({
     username = 'Player',
     embeds =  {{["color"] = 65280,
-                ["author"] = {["name"] = 'Overland Logs ',
-                ["icon_url"] = 'https://cdn.probot.io/QDwVwOiMTw.gif'},
+                ["author"] = {["name"] = 'Diamond Logs ',
+                ["icon_url"] = ''},
                 ["description"] = "** 🌐 Ban Log 🌐**\n```css\n[Guy]: " ..GetPlayerName(source).. "\n" .. "[ID]: " .. source.. "\n" .. "[Method]: " .. method .. "\n```",
-                ["footer"] = {["text"] = "© OverLand Logs- "..os.date("%x %X  %p"),
-                ["icon_url"] = 'https://cdn.probot.io/QDwVwOiMTw.gif',},}
+                ["footer"] = {["text"] = "© Diamond Logs- "..os.date("%x %X  %p"),
+                ["icon_url"] = '',},}
                 },
-    avatar_url = 'https://cdn.probot.io/QDwVwOiMTw.gif'
+    avatar_url = ''
     }),
     {['Content-Type'] = 'application/json'
     })

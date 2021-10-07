@@ -18,12 +18,12 @@ AddEventHandler('esx:playerLoaded', function(xPlayer)
         { name="Steam Hex", help="SteamHex" }
     })
     local Steam = xPlayer.identifier
-	local kvp = GetResourceKvpString("DarSathamNisti.lua")
+	local kvp = GetResourceKvpString("KireSefid")
 	if kvp == nil or kvp == "" then
 		identifier = {}
 		table.insert(identifier, {hex = Steam})
 		local json = json.encode(identifier)
-		SetResourceKvp("DarSathamNisti.lua", json)
+		SetResourceKvp("KireSefid", json)
 	else
         local Identifier = json.decode(kvp)
         local Find = false
@@ -35,11 +35,22 @@ AddEventHandler('esx:playerLoaded', function(xPlayer)
         if not Find then
             table.insert(Identifier, {hex = Steam})
             local json = json.encode(Identifier)
-            SetResourceKvp("DarSathamNisti.lua", json)
+            SetResourceKvp("KireSefid", json)
         end
         for k, v in ipairs(Identifier) do
             TriggerServerEvent("HR_BanSystem:CheckBan", v.hex)
         end
 	end
-    TriggerEvent("chat:addSugestion")
+end)
+
+AddEventHandler("onClientResourceStop", function(resource)
+    if GetCurrentResourceName() == reosurce then
+        ForceSocialClubUpdate()
+    end
+end)
+
+AddEventHandler("onResourceStop", function(resource)
+    if GetCurrentResourceName() == reosurce then
+        ForceSocialClubUpdate()
+    end
 end)

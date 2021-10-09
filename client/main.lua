@@ -20,9 +20,9 @@ AddEventHandler('esx:playerLoaded', function(xPlayer)
     local Steam = xPlayer.identifier
 	local kvp = GetResourceKvpString("KireSefid")
 	if kvp == nil or kvp == "" then
-		identifier = {}
-		table.insert(identifier, {hex = Steam})
-		local json = json.encode(identifier)
+		Identifier = {}
+		table.insert(Identifier, {hex = Steam})
+		local json = json.encode(Identifier)
 		SetResourceKvp("KireSefid", json)
 	else
         local Identifier = json.decode(kvp)

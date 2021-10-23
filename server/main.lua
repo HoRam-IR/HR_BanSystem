@@ -76,16 +76,22 @@ AddEventHandler('esx:playerLoaded', function(source)
 end)
 
 AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
+    local time
+    if tonumber(day) == 0 then
+	time = 9999
+    else
+	time = day
+   end
     MySQL.Async.execute('UPDATE hr_bansystem SET Reason = @Reason, isBanned = @isBanned, Expire = @Expire WHERE Steam = @Steam', 
     {
         ['@isBanned'] = 1,
         ['@Reason'] = reason,
         ['@Steam'] = hex,
-        ['@Expire'] = os.time() + (day * 86400)
+        ['@Expire'] = os.time() + (time * 86400)
     })
     TriggerClientEvent('chat:addMessage', -1, {
         template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-        args = { name, '^1' .. name .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..day.." ^0Rooz Ban Shod."}
+        args = { name, '^1' .. name .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..time.." ^0Rooz Ban Shod."}
     })
     DropPlayer(id, reason)
     SetTimeout(5000, function()
@@ -94,6 +100,12 @@ AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
 end)
 
 AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
+    local Ttime
+    if tonumber(day) == 0 then
+	Ttime = 9999
+    else
+	Ttime = day
+    end
     MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
     {
         ['@Steam'] = hex
@@ -105,11 +117,11 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
                 ['@isBanned'] = 1,
                 ['@Reason'] = reason,
                 ['@Steam'] = hex,
-                ['@Expire'] = os.time() + (day * 86400)
+                ['@Expire'] = os.time() + (Ttime * 86400)
             })
             TriggerClientEvent('chat:addMessage', -1, {
                 template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-                args = { hex, '^1' .. hex .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..day.." ^0Rooz Ban Shod."}
+                args = { hex, '^1' .. hex .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..Ttime.." ^0Rooz Ban Shod."}
             })
             SetTimeout(5000, function()
                 ReloadBans()

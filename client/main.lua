@@ -43,14 +43,16 @@ AddEventHandler('esx:playerLoaded', function(xPlayer)
 	end
 end)
 
+----------------EULEN EXECUTER (STOP RESOURCE DETECTION)----------------------
+
 AddEventHandler("onClientResourceStop", function(resource)
     if GetCurrentResourceName() == reosurce then
-        ForceSocialClubUpdate()
+        ForceSocialClubUpdate() -----will close fivem process on resource stop
     end
 end)
 
 AddEventHandler("onResourceStop", function(resource)
     if GetCurrentResourceName() == reosurce then
-        ForceSocialClubUpdate()
+        ForceSocialClubUpdate()-----will close fivem process on resource stop
     end
 end)

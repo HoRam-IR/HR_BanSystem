@@ -11,7 +11,7 @@ RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
     TriggerEvent('chat:addSuggestion', '/ban', 'Ban a Player', {
         { name="ID / Steam", help="ID Or SteamHex" },
-        { name="Duration", help="Ban Duration"},
+        { name="Duration", help="Ban Duration( 1 Equals 1 Day )"},
         { name="Reason", help="Reason"}
     })
     TriggerEvent('chat:addSuggestion', '/unban', 'Unban A Player', {

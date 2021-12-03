@@ -38,8 +38,8 @@ AddEventHandler('esx:playerLoaded', function(source)
         end
     end
     if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil or GetNumPlayerTokens(source) < 0 or GetNumPlayerTokens(source) == "null" or GetNumPlayerTokens(source) == "**Invalid**" or not GetNumPlayerTokens(source) then
-        DiscordLog(source, "Max Token Numbers Are nil")
-        DropPlayer(source, "HR_BanSystem: \n Moshkeli Dar Darayft Etelaat System Shoma Vojud Darad. \n Lotfan FiveM Ra Restart Konid.")
+        DiscordLog(source, "Player Token Numbers Are Unknown")
+        DropPlayer(source, "HR_BanSystem: \n There is a problem retrieving your fivem information \n Please Restart FiveM.")
         return
     end
     for a, b in pairs(BannedAccounts) do
@@ -64,14 +64,14 @@ AddEventHandler('esx:playerLoaded', function(source)
     end
     if BannedAlready2 then
         BannedAlready2 = false
-        DiscordLog(source, "Tried To Join But He/She Is Banned (Roo Hava)")
-	    DropPlayer(source, "Shoma Az Server Ban Boodid, Be Hamin Dalil Kick Shodid.")
+        DiscordLog(source, "Tried To Join But He/She Is Banned (Kicked From Server When Loaded Into Server(Was Banned))")
+	    DropPlayer(source, "kick reason: you were banned from server")
     end
     if isBypassing2 then
         isBypassing2 = false
-        DiscordLog(source, "Tried To Join Using Bypass Method (Roo Hava)")
+        DiscordLog(source, "Tried To Join Using Bypass Method (Changed Steam Hex(New Account Banned When Loaded To Server))")
         BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
-	    DropPlayer(source, "Shoma Az Server Ban Boodid, Be Hamin Dalil Kick Shodid.")
+	    DropPlayer(source, "kick reason: you were banned from server")
     end
 end)
 
@@ -91,7 +91,7 @@ AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
     })
     TriggerClientEvent('chat:addMessage', -1, {
         template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-        args = { name, '^1' .. name .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..time.." ^0Rooz Ban Shod."}
+        args = { name, '^1' .. name .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: ^1"..time.." ^0."}
     })
     DropPlayer(id, reason)
     SetTimeout(5000, function()
@@ -121,13 +121,13 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
             })
             TriggerClientEvent('chat:addMessage', -1, {
                 template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-                args = { hex, '^1' .. hex .. ' ^0Be Dalil ^1' ..reason.." ^0Be Moddat ^1"..Ttime.." ^0Rooz Ban Shod."}
+                args = { hex, '^1' .. hex .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: t ^1"..Ttime.." ^0 Days."}
             })
             SetTimeout(5000, function()
                 ReloadBans()
             end)
         else
-            TriggerClientEvent('chatMessage', xAdmin, "[Database]", {255, 0, 0}, " ^0I Cant Find This Steam. :( It Is InCorrect")
+            TriggerClientEvent('chatMessage', xAdmin, "[Database]", {255, 0, 0}, " ^0I Cant Find This Steam Hex. :( It Is InCorrect")
         end
     end)
 end)
@@ -156,20 +156,20 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         end
     end
     if Steam == nil or Lice == nil or Steam == "" or Lice == "" or Steam == "NONE" or Lice == "NONE" then
-        setKickReason("\n \n HR_BanSystem: \n Steam Ya Rockstar License Shoma Peyda Nashod. \n Lotfan FiveM Ra Restart Konid.")
+        setKickReason("\n \n HR_BanSystem: \n Your Steam App Is Not Opened, First Open Steam App. \n Restart FiveM.")
         CancelEvent()
         return
     end
     if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil or GetNumPlayerTokens(source) < 0 or GetNumPlayerTokens(source) == "null" or GetNumPlayerTokens(source) == "**Invalid**" or not GetNumPlayerTokens(source) then
         DiscordLog(source, "Max Token Numbers Are nil")
-        setKickReason("\n \n HR_BanSystem: \n Moshkeli Dar Darayft Etelaat System Shoma Vojud Darad. \n Lotfan FiveM Ra Restart Konid.")
+        setKickReason("\n \n HR_BanSystem: \n There is a problem retrieving your fivem information \n Please Restart FiveM.")
         CancelEvent()
         return
     end
     if JoinCoolDown[Steam] == nil then
         JoinCoolDown[Steam] = os.time()
     elseif os.time() - JoinCoolDown[Steam] < 15 then 
-        setKickReason("\n \n HR_BanSystem: \n ErrorCode : #12\n \n Lotfan Gozineye Connect Be Server Ra SPAM Nakonid.")
+        setKickReason("\n \n HR_BanSystem: \n ErrorCode : #12\n \n Don't Spam The Connect Button")
         CancelEvent()
         return
     else
@@ -202,11 +202,11 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
     end
     if BannedAlready then
         BannedAlready = false
-        DiscordLog(source, "Tried To Join But He/She Is Banned")
+        DiscordLog(source, "Tried To Join But He/She Is Banned (Rejected From Joining Before Loading Into Server)")
     end
     if isBypassing then
         isBypassing = false
-        DiscordLog(source, "Tried To Join Using Bypass Method")
+        DiscordLog(source, "Tried To Join Using Bypass Method (Changed Steam Hex(New Account Banned Before Loading Into Server))")
         BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
     end
 end)
@@ -396,13 +396,13 @@ RegisterCommand('ban', function(source, args)
                         end
                     end
                 else
-                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Shoma Dar Ghesmat Sevom Faghat Bayad Dalil Vared Konid.")
+                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Ban Reason.")
                 end
             else
-                TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Shoma Dar Ghesmat Dovom Faghat Adad Mitavanid Vared Konid.")
+                TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Plaease Enter Ban Duration.")
             end
         else
-            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Bakhsh 1 Khali Ast.")
+            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Server ID Or Steam Hex.")
         end
     else
         if source ~= 0 then
@@ -421,8 +421,8 @@ AddEventHandler("HR_BanSystem:CheckBan", function(hex)
     }, function(data)
         if data[1] then
             if data[1].isBanned == 1 then
-                DiscordLog(source, "Tried To Bypass BanSystem(KVP)")
-                DropPlayer(source, "Shoma Az Server Ban Boodid, Ba Hamin Dalil Kick Shodid.")
+                DiscordLog(source, "Tried To Bypass BanSystem(KVP Method)")
+                DropPlayer(source, "kick reason: you were banned")
             end
         end
     end)
@@ -447,7 +447,7 @@ RegisterCommand('unban', function(source, args)
                     SetTimeout(5000, function()
                         ReloadBans()
                     end)
-                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Movafaghiat Amiz Bood.")
+                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Success.")
                 else
                     TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
                 end

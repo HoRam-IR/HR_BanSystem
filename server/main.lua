@@ -3,10 +3,6 @@ ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 local JoinCoolDown = {}
-local BannedAlready = false
-local BannedAlready2 = false
-local isBypassing = false
-local isBypassing2 = false
 local DatabaseStuff = {}
 local BannedAccounts = {}
 local Admins = {
@@ -14,8 +10,18 @@ local Admins = {
     "example",
 }
 
+SendMessage = function(Source,Title,Color,Msg)
+    if source == 0 then
+        print(Title,Msg)
+    else
+        TriggerClientEvent('chatMessage', source, Source,Title,Color,Msg)
+    end
+end
+
 AddEventHandler('esx:playerLoaded', function(source)
     local source = source
+    local BannedAlready2 = false
+    local isBypassing2 = false
     local Steam = "NONE"
     local Lice = "NONE"
     local Live = "NONE"
@@ -127,13 +133,15 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
                 ReloadBans()
             end)
         else
-            TriggerClientEvent('chatMessage', xAdmin, "[Database]", {255, 0, 0}, " ^0I Cant Find This Steam Hex. :( It Is InCorrect")
+            SendMessage(xAdmin, "[Database]", {255, 0, 0}, " ^0I Cant Find This Steam Hex. :( It Is InCorrect")
         end
     end)
 end)
 
 AddEventHandler('playerConnecting', function(name, setKickReason)
     local source = source
+    local BannedAlready = false
+    local isBypassing = false
     local Steam = "NONE"
     local Lice = "NONE"
     local Live = "NONE"
@@ -340,9 +348,9 @@ function BanNewAccount(source, Reason, Time)
 end
 
 RegisterCommand('banreload', function(source, args)
-    if IsPlayerAllowedToBan(source) or source == 0 then
+    if source == 0 or IsPlayerAllowedToBan(source) then
         ReloadBans()
-        TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Ban List Reloaded.")
+        SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Ban List Reloaded.")
     end
 end)
 
@@ -373,7 +381,7 @@ end
 RegisterCommand('ban', function(source, args)
     local xPlayer = ESX.GetPlayerFromId(source)
     local target = tonumber(args[1])
-    if IsPlayerAllowedToBan(source) or source == 0 then
+    if source == 0 or IsPlayerAllowedToBan(source) then
         if args[1] then
             if tonumber(args[2]) then
                 if tostring(args[3]) then
@@ -386,27 +394,27 @@ RegisterCommand('ban', function(source, args)
                             end
                             TriggerEvent('Initiate:BanSql', Hex, tonumber(target), table.concat(args, " ",3), GetPlayerName(target), tonumber(args[2]))
                         else
-                            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")
+                            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")
                         end
                     else
                         if string.find(args[1], "steam:") ~= nil then
                             TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), tonumber(args[2]))
                         else
-                            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
+                            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
                         end
                     end
                 else
-                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Ban Reason.")
+                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Ban Reason.")
                 end
             else
-                TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Plaease Enter Ban Duration.")
+                SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Plaease Enter Ban Duration.")
             end
         else
-            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Server ID Or Steam Hex.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Server ID Or Steam Hex.")
         end
     else
         if source ~= 0 then
-            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
         end
     end
 end)
@@ -429,7 +437,7 @@ AddEventHandler("HR_BanSystem:CheckBan", function(hex)
 end)
 
 RegisterCommand('unban', function(source, args)
-    if IsPlayerAllowedToBan(source) or source == 0 then
+    if source == 0 or IsPlayerAllowedToBan(source) then
         if tostring(args[1]) then
             MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
             {
@@ -447,17 +455,17 @@ RegisterCommand('unban', function(source, args)
                     SetTimeout(5000, function()
                         ReloadBans()
                     end)
-                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Success.")
+                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Success.")
                 else
-                    TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
+                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
                 end
             end)
         else
-            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
         end
     else
         if source ~= 0 then
-            TriggerClientEvent('chatMessage', source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
         end
     end
 end)

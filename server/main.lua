@@ -11,10 +11,10 @@ local Admins = {
 }
 
 SendMessage = function(Source,Title,Color,Msg)
-    if source == 0 then
+    if Source == 0 then
         print(Title,Msg)
     else
-        TriggerClientEvent('chatMessage', source, Source,Title,Color,Msg)
+        TriggerClientEvent('chatMessage', source, Source, Title, Color, Msg)
     end
 end
 
@@ -407,7 +407,7 @@ RegisterCommand('ban', function(source, args)
                     SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Ban Reason.")
                 end
             else
-                SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Plaease Enter Ban Duration.")
+                SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Ban Duration.")
             end
         else
             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Server ID Or Steam Hex.")

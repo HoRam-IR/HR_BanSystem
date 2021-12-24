@@ -14,7 +14,7 @@ SendMessage = function(Source,Title,Color,Msg)
     if Source == 0 then
         print(Title,Msg)
     else
-        TriggerClientEvent('chatMessage', source, Source, Title, Color, Msg)
+        TriggerClientEvent('chatMessage', Source, Title, Color, Msg)
     end
 end
 

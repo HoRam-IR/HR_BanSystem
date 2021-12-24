@@ -26,20 +26,26 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `hr_bansystem`
 --
-
 CREATE TABLE `hr_bansystem` (
-  `ID` int(11) NOT NULL,
-  `Steam` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `License` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `IP` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `Discord` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
-  `Xbox` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
-  `Live` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
-  `Tokens` varchar(5000) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]',
-  `Reason` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-  `isBanned` int(11) NOT NULL DEFAULT 0,
-  `Expire` int(11) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+	`ID` INT(11) NOT NULL AUTO_INCREMENT,
+	`Steam` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
+	`License` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
+	`License2` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_general_ci',
+	`IP` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
+	`Discord` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
+	`Xbox` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
+	`Live` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
+	`Tokens` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin',
+	`Reason` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
+	`isBanned` INT(11) NOT NULL DEFAULT '0',
+	`Expire` INT(11) NOT NULL DEFAULT '0',
+	INDEX `ID` (`ID`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=92
+;
+
 
 --
 -- Indexes for dumped tables

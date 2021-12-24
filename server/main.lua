@@ -392,12 +392,14 @@ RegisterCommand('ban', function(source, args)
                                     Hex = v
                                 end
                             end
+                            DiscordLog(tonumber(source), "Banned " .. tostring(GetPlayerName(target)) .. " for " .. (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2])))
                             TriggerEvent('Initiate:BanSql', Hex, tonumber(target), table.concat(args, " ",3), GetPlayerName(target), tonumber(args[2]))
                         else
                             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")
                         end
                     else
                         if string.find(args[1], "steam:") ~= nil then
+                            DiscordLog(tonumber(source), "Banned " .. tostring(args[1]) .. " for " .. (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2])))
                             TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), tonumber(args[2]))
                         else
                             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
@@ -455,6 +457,7 @@ RegisterCommand('unban', function(source, args)
                     SetTimeout(5000, function()
                         ReloadBans()
                     end)
+                    DiscordLog(tonumber(source), "UnBanned " .. tostring(args[1]))
                     SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Success.")
                 else
                     SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
@@ -485,7 +488,7 @@ function ReloadBans()
 end
 
 MySQL.ready(function()
-	ReloadBans()
+    ReloadBans()
     print("Ban List Loaded")
 end)
 
@@ -502,19 +505,30 @@ function IsPlayerAllowedToBan(player)
 end
 
 function DiscordLog(source, method)
-    PerformHttpRequest('', function(err, text, headers)
-    end, 'POST',
-    json.encode({
-    username = 'Player',
-    embeds =  {{["color"] = 65280,
-                ["author"] = {["name"] = 'Diamond Logs ',
-                ["icon_url"] = ''},
-                ["description"] = "** 🌐 Ban Log 🌐**\n```css\n[Guy]: " ..GetPlayerName(source).. "\n" .. "[ID]: " .. source.. "\n" .. "[Method]: " .. method .. "\n```",
-                ["footer"] = {["text"] = "© Diamond Logs- "..os.date("%x %X  %p"),
-                ["icon_url"] = '',},}
-                },
-    avatar_url = ''
-    }),
-    {['Content-Type'] = 'application/json'
+    PerformHttpRequest("",function(err, text, headers)
+        end, "POST",
+            json.encode(
+                {
+                    username = "Player",
+                    embeds = {
+                        {
+                            ["color"] = 65280,
+                            ["author"] = {
+                                ["name"] = "Ban Logs ",
+                                ["icon_url"] = ""
+                            },
+                            ["description"] = "** 🌐 Ban Log 🌐**\n```css\n[Guy]: " .. (source == 0 and "Console" or GetPlayerName(source)) .. "\n" .. "[ID]: " .. (source == 0 and "Console" or source) .. "\n" .. "[Method]: " .. method .. "\n```",
+                            ["footer"] = {
+                                ["text"] = "© Ban Logs- " .. os.date("%x %X  %p"),
+                                ["icon_url"] = ""
+                            }
+                        }
+                    },
+                    avatar_url = ""
+                }
+            ),
+        {
+        ["Content-Type"] = "application/json"
     })
 end
+

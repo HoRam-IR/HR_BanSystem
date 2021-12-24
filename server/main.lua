@@ -24,6 +24,7 @@ AddEventHandler('esx:playerLoaded', function(source)
     local isBypassing2 = false
     local Steam = "NONE"
     local Lice = "NONE"
+    local Lice2 = "NONE"
     local Live = "NONE"
     local Xbox = "NONE"
     local Discord = "NONE"
@@ -33,6 +34,8 @@ AddEventHandler('esx:playerLoaded', function(source)
             Steam = v
         elseif string.sub(v, 1,string.len("license:")) == "license:" then
             Lice = v
+        elseif string.sub(v, 1,string.len("license2:")) == "license2:" then
+            Lice2 = v
         elseif string.sub(v, 1,string.len("live:")) == "live:" then
             Live = v
         elseif string.sub(v, 1,string.len("xbl:")) == "xbl:" then
@@ -52,7 +55,7 @@ AddEventHandler('esx:playerLoaded', function(source)
         for c, d in pairs(b) do 
             for e, f in pairs(json.decode(d.Tokens)) do
                 for g = 0, GetNumPlayerTokens(source) - 1 do
-                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
+                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
                         if os.time() < tonumber(d.Expire) then
                             BannedAlready2 = true
                             if d.Steam ~= tostring(Steam) then
@@ -71,13 +74,13 @@ AddEventHandler('esx:playerLoaded', function(source)
     if BannedAlready2 then
         BannedAlready2 = false
         DiscordLog(source, "Tried To Join But He/She Is Banned (Kicked From Server When Loaded Into Server(Was Banned))")
-	    DropPlayer(source, "kick reason: you were banned from server")
+        DropPlayer(source, "kick reason: you were banned from server")
     end
     if isBypassing2 then
         isBypassing2 = false
         DiscordLog(source, "Tried To Join Using Bypass Method (Changed Steam Hex(New Account Banned When Loaded To Server))")
         BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
-	    DropPlayer(source, "kick reason: you were banned from server")
+        DropPlayer(source, "kick reason: you were banned from server")
     end
 end)
 
@@ -144,6 +147,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
     local isBypassing = false
     local Steam = "NONE"
     local Lice = "NONE"
+    local Lice2 = "NONE"
     local Live = "NONE"
     local Xbox = "NONE"
     local Discord = "NONE"
@@ -153,6 +157,8 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
             Steam = v
         elseif string.sub(v, 1,string.len("license:")) == "license:" then
             Lice = v
+        elseif string.sub(v, 1,string.len("license2:")) == "license2:" then
+            Lice2 = v
         elseif string.sub(v, 1,string.len("live:")) == "live:" then
             Live = v
         elseif string.sub(v, 1,string.len("xbl:")) == "xbl:" then
@@ -187,7 +193,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         for c, d in pairs(b) do 
             for e, f in pairs(json.decode(d.Tokens)) do
                 for g = 0, GetNumPlayerTokens(source) - 1 do
-                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
+                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
                         if os.time() < tonumber(d.Expire) then
                             BannedAlready = true
                             if d.Steam ~= tostring(Steam) then
@@ -244,6 +250,7 @@ function InitiateDatabase(source)
     local source = source
     local ST = "None"
     local LC = "None"
+    local LC2 = "None"
     local LV = "None"
     local XB = "None"
     local DS = "None"
@@ -253,6 +260,8 @@ function InitiateDatabase(source)
             ST  = v
         elseif string.sub(v, 1,string.len("license:")) == "license:" then
             LC  = v
+        elseif string.sub(v, 1,string.len("license2:")) == "license2:" then
+            LC2  = v
         elseif string.sub(v, 1,string.len("live:")) == "live:" then
             LV  = v
         elseif string.sub(v, 1,string.len("xbl:")) == "xbl:" then
@@ -274,10 +283,11 @@ function InitiateDatabase(source)
 
     }, function(data) 
         if data[1] == nil then
-            MySQL.Async.execute('INSERT INTO hr_bansystem (Steam, License, Tokens, Discord, IP, Xbox, Live, Reason, Expire, isBanned) VALUES (@Steam, @License, @Tokens, @Discord, @IP, @Xbox, @Live, @Reason, @Expire, @isBanned)',
+            MySQL.Async.execute('INSERT INTO hr_bansystem (Steam, License, License2, Tokens, Discord, IP, Xbox, Live, Reason, Expire, isBanned) VALUES (@Steam, @License, @License2, @Tokens, @Discord, @IP, @Xbox, @Live, @Reason, @Expire, @isBanned)',
             {
                 ['@Steam'] = ST,
                 ['@License'] = LC,
+                ['@License2'] = LC2,
                 ['@Discord'] = DS,
                 ['@Xbox'] = XB,
                 ['@IP'] = IiP,
@@ -296,6 +306,7 @@ function BanNewAccount(source, Reason, Time)
     local source = source
     local ST = "None"
     local LC = "None"
+    local LC2 = "None"
     local LV = "None"
     local XB = "None"
     local DS = "None"
@@ -305,6 +316,8 @@ function BanNewAccount(source, Reason, Time)
             ST  = v
         elseif string.sub(v, 1,string.len("license:")) == "license:" then
             LC  = v
+        elseif string.sub(v, 1,string.len("license2:")) == "license2:" then
+            LC2  = v
         elseif string.sub(v, 1,string.len("live:")) == "live:" then
             LV  = v
         elseif string.sub(v, 1,string.len("xbl:")) == "xbl:" then
@@ -326,10 +339,11 @@ function BanNewAccount(source, Reason, Time)
 
     }, function(data) 
         if data[1] == nil then
-            MySQL.Async.execute('INSERT INTO hr_bansystem (Steam, License, Tokens, Discord, IP, Xbox, Live, Reason, Expire, isBanned) VALUES (@Steam, @License, @Tokens, @Discord, @IP, @Xbox, @Live, @Reason, @Expire, @isBanned)',
+            MySQL.Async.execute('INSERT INTO hr_bansystem (Steam, License, License2, Tokens, Discord, IP, Xbox, Live, Reason, Expire, isBanned) VALUES (@Steam, @License, @License2, @Tokens, @Discord, @IP, @Xbox, @Live, @Reason, @Expire, @isBanned)',
             {
                 ['@Steam'] = ST,
                 ['@License'] = LC,
+                ['@License2'] = LC2,
                 ['@Discord'] = DS,
                 ['@Xbox'] = XB,
                 ['@IP'] = IiP,

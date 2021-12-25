@@ -19,11 +19,24 @@ SendMessage = function(Source,Title,Color,Msg)
 end
 
 DisplayTime = function(time)
-    local days = floor(time/86400)
-    local hours = floor(mod(time, 86400)/3600)
-    local minutes = floor(mod(time,3600)/60)
-    local seconds = floor(mod(time,60))
-    return format("%d Day(s) %02d:%02d:%02d",days,hours,minutes,seconds)
+    local days = math.floor(time/86400)
+    local remaining = time % 86400
+    local hours = math.floor(remaining/3600)
+    remaining = remaining % 3600
+    local minutes = math.floor(remaining/60)
+    remaining = remaining % 60
+    local seconds = remaining
+    if (hours < 10) then
+        hours = "0" .. tostring(hours)
+    end
+    if (minutes < 10) then
+        minutes = "0" .. tostring(minutes)
+    end
+    if (seconds < 10) then
+        seconds = "0" .. tostring(seconds)
+    end
+    answer = tostring(days)..' Day(s) '..hours..':'..minutes..':'..seconds
+    return answer
 end
 
 AddEventHandler('esx:playerLoaded', function(source)

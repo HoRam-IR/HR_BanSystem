@@ -18,6 +18,14 @@ SendMessage = function(Source,Title,Color,Msg)
     end
 end
 
+DisplayTime = function(time)
+    local days = floor(time/86400)
+    local hours = floor(mod(time, 86400)/3600)
+    local minutes = floor(mod(time,3600)/60)
+    local seconds = floor(mod(time,60))
+    return format("%d Day(s) %02d:%02d:%02d",days,hours,minutes,seconds)
+end
+
 AddEventHandler('esx:playerLoaded', function(source)
     local source = source
     local BannedAlready2 = false
@@ -199,7 +207,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
                             if d.Steam ~= tostring(Steam) then
                                 isBypassing = true
                             end
-                            setKickReason("\n \n HR_BanSystem: \n Ban ID: #"..d.ID.."\n Reason: "..d.Reason.."\n Expiration: You Have Been Banned For #"..math.floor(((tonumber(d.Expire) - os.time())/86400)).." Day(s)! \nHWID: "..f)
+                            setKickReason("\n \n HR_BanSystem: \n Ban ID: #"..d.ID.."\n Reason: "..d.Reason.."\n Expiration: You Have Been Banned For ".. DisplayTime((tonumber(d.Expire) - os.time())) .." ! \nHWID: "..f)
                             CancelEvent()
                             break
                         else

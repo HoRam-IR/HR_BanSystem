@@ -77,10 +77,10 @@ AddEventHandler('esx:playerLoaded', function(source)
             for e, f in pairs(json.decode(d.Tokens)) do
                 for g = 0, GetNumPlayerTokens(source) - 1 do
                     if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
-                        if os.time() < tonumber(d.Expire) then
+                        if (type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet") or os.time() < tonumber(d.Expire) then
                             BannedAlready2 = true
                             if d.Steam ~= tostring(Steam) then
-                                isBypassing2 = true
+                                isBypassing2 = d.Expire
                             end
                             break
                         else
@@ -93,35 +93,33 @@ AddEventHandler('esx:playerLoaded', function(source)
         end
     end
     if BannedAlready2 then
-        BannedAlready2 = false
         DiscordLog(source, "Tried To Join But He/She Is Banned (Kicked From Server When Loaded Into Server(Was Banned))")
         DropPlayer(source, "kick reason: you were banned from server")
     end
     if isBypassing2 then
-        isBypassing2 = false
         DiscordLog(source, "Tried To Join Using Bypass Method (Changed Steam Hex(New Account Banned When Loaded To Server))")
-        BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
+        BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", isBypassing2)
         DropPlayer(source, "kick reason: you were banned from server")
     end
 end)
 
 AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
     local time
-    if tonumber(day) == 0 then
-	time = 9999
+    if (type(day) == 'string' and string.lower(day) == "permanet") or tonumber(day) == 0 then
+	time = "Permanet"
     else
-	time = day
+	time = tonumber(day)
    end
     MySQL.Async.execute('UPDATE hr_bansystem SET Reason = @Reason, isBanned = @isBanned, Expire = @Expire WHERE Steam = @Steam', 
     {
         ['@isBanned'] = 1,
         ['@Reason'] = reason,
         ['@Steam'] = hex,
-        ['@Expire'] = os.time() + (time * 86400)
+        ['@Expire'] = (type(day) == 'string' and time) or (os.time() + (time * 86400))
     })
     TriggerClientEvent('chat:addMessage', -1, {
         template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-        args = { name, '^1' .. name .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: ^1"..time.." ^0 Days."}
+        args = { name, '^1' .. name .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: ^1".. (type(day) == 'string' and "Permanet" or time .." ^0 Day(s).")}
     })
     DropPlayer(id, reason)
     SetTimeout(5000, function()
@@ -130,11 +128,11 @@ AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
 end)
 
 AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
-    local Ttime
-    if tonumber(day) == 0 then
-	Ttime = 9999
+    local time
+    if (type(day) == 'string' and string.lower(day) == "permanet") or tonumber(day) == 0 then
+	time = "Permanet"
     else
-	Ttime = day
+	time = tonumber(day)
     end
     MySQL.Async.fetchAll('SELECT Steam FROM hr_bansystem WHERE Steam = @Steam',
     {
@@ -147,11 +145,11 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
                 ['@isBanned'] = 1,
                 ['@Reason'] = reason,
                 ['@Steam'] = hex,
-                ['@Expire'] = os.time() + (Ttime * 86400)
+                ['@Expire'] = (type(day) == 'string' and time) or (os.time() + (time * 86400))
             })
             TriggerClientEvent('chat:addMessage', -1, {
                 template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-                args = { hex, '^1' .. hex .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: t ^1"..Ttime.." ^0 Days."}
+                args = { hex, '^1' .. hex .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: t ^1".. (type(day) == 'string' and "Permanet" or time .." ^0 Day(s).")}
             })
             SetTimeout(5000, function()
                 ReloadBans()
@@ -215,12 +213,12 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
             for e, f in pairs(json.decode(d.Tokens)) do
                 for g = 0, GetNumPlayerTokens(source) - 1 do
                     if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
-                        if os.time() < tonumber(d.Expire) then
+                       if (type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet")  or os.time() < tonumber(d.Expire) then
                             BannedAlready = true
                             if d.Steam ~= tostring(Steam) then
-                                isBypassing = true
+                                isBypassing = d.Expire
                             end
-                            setKickReason("\n \n HR_BanSystem: \n Ban ID: #"..d.ID.."\n Reason: "..d.Reason.."\n Expiration: You Have Been Banned For ".. DisplayTime((tonumber(d.Expire) - os.time())) .." ! \nHWID: "..f)
+                            setKickReason("\n \n HR_BanSystem: \n Ban ID: #"..d.ID.."\n Reason: "..d.Reason.."\n Expiration: You Have Been Banned For ".. ((type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet") and "Permanet" or DisplayTime((tonumber(d.Expire) - os.time()))) .." ! \nHWID: "..f)
                             CancelEvent()
                             break
                         else
@@ -236,13 +234,11 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         InitiateDatabase(tonumber(source))
     end
     if BannedAlready then
-        BannedAlready = false
         DiscordLog(source, "Tried To Join But He/She Is Banned (Rejected From Joining Before Loading Into Server)")
     end
     if isBypassing then
-        isBypassing = false
         DiscordLog(source, "Tried To Join Using Bypass Method (Changed Steam Hex(New Account Banned Before Loading Into Server))")
-        BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", os.time() + (300 * 86400))
+        BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", isBypassing)
     end
 end)
 
@@ -397,7 +393,7 @@ AddEventHandler("HR_BanSystem:BanMe", function(Reason, Time)
             Cheat = v
         end
     end
-    TriggerEvent('Initiate:BanSql', Cheat, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(Time))
+    TriggerEvent('Initiate:BanSql', Cheat, tonumber(source), tostring(Reason), GetPlayerName(source), Time)
 end)
 
 function BanThis(source, Reason, Times)
@@ -410,7 +406,7 @@ function BanThis(source, Reason, Times)
     if Times == nil or not Times then
         time = 365
     end
-    TriggerEvent('Initiate:BanSql', STP, tonumber(source), tostring(Reason), GetPlayerName(source), tonumber(time))
+    TriggerEvent('Initiate:BanSql', STP, tonumber(source), tostring(Reason), GetPlayerName(source), time)
 end
 
 RegisterCommand('ban', function(source, args)
@@ -418,7 +414,7 @@ RegisterCommand('ban', function(source, args)
     local target = tonumber(args[1])
     if source == 0 or IsPlayerAllowedToBan(source) then
         if args[1] then
-            if tonumber(args[2]) then
+            if string.lower(tostring(args[2])) == 'permanet' or tonumber(args[2]) then
                 if tostring(args[3]) then
                     if tonumber(args[1]) then
                         if GetPlayerName(target) then
@@ -427,15 +423,15 @@ RegisterCommand('ban', function(source, args)
                                     Hex = v
                                 end
                             end
-                            DiscordLog(tonumber(source), "Banned " .. tostring(GetPlayerName(target)) .. " for " .. (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2])))
-                            TriggerEvent('Initiate:BanSql', Hex, tonumber(target), table.concat(args, " ",3), GetPlayerName(target), tonumber(args[2]))
+                            DiscordLog(tonumber(source), "Banned " .. tostring(GetPlayerName(target)) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) )
+                            TriggerEvent('Initiate:BanSql', Hex, tonumber(target), table.concat(args, " ",3), GetPlayerName(target), args[2])
                         else
                             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")
                         end
                     else
                         if string.find(args[1], "steam:") ~= nil then
-                            DiscordLog(tonumber(source), "Banned " .. tostring(args[1]) .. " for " .. (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2])))
-                            TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), tonumber(args[2]))
+                            DiscordLog(tonumber(source), "Banned " .. tostring(args[1]) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) )
+                            TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), args[2])
                         else
                             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
                         end

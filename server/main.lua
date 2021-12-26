@@ -69,7 +69,7 @@ AddEventHandler('esx:playerLoaded', function(source)
     end
     if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil or GetNumPlayerTokens(source) < 0 or GetNumPlayerTokens(source) == "null" or GetNumPlayerTokens(source) == "**Invalid**" or not GetNumPlayerTokens(source) then
         DiscordLog(source, "Player Token Numbers Are Unknown")
-        DropPlayer(source, "HR_BanSystem: \n There is a problem retrieving your fivem information \n Please Restart FiveM.")
+        DropPlayer(source, "HR_BanSystem: \n There is a problem retrieving your fivem informations \n Please Restart FiveM.")
         return
     end
     for a, b in pairs(BannedAccounts) do
@@ -93,13 +93,13 @@ AddEventHandler('esx:playerLoaded', function(source)
         end
     end
     if BannedAlready2 then
-        DiscordLog(source, "Tried To Join But He/She Is Banned (Kicked From Server When Loaded Into Server(Was Banned))")
-        DropPlayer(source, "kick reason: you were banned from server")
+        DiscordLog(source, "Has tried To join. (Rejected from joining before loading into the server)")
+        DropPlayer(source, "You were banned from this server.")
     end
     if isBypassing2 then
-        DiscordLog(source, "Tried To Join Using Bypass Method (Changed Steam Hex(New Account Banned When Loaded To Server))")
+        DiscordLog(source, "Has tried To join using Bypass method by changing identifiers (New identifiers has been banned.")
         BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", isBypassing2)
-        DropPlayer(source, "kick reason: you were banned from server")
+        DropPlayer(source, "You were banned from this server.")
     end
 end)
 
@@ -119,7 +119,7 @@ AddEventHandler('Initiate:BanSql', function(hex, id, reason, name, day)
     })
     TriggerClientEvent('chat:addMessage', -1, {
         template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-        args = { name, '^1' .. name .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: ^1".. (type(day) == 'string' and "Permanet" or time .." ^0 Day(s).")}
+        args = { name, '^1' .. name .. ' ^0has been banned, Reason: ^1' ..reason.." ^0Duration: ^1".. (type(day) == 'string' and "Permanet" or time .." ^0 Day(s).")}
     })
     DropPlayer(id, reason)
     SetTimeout(5000, function()
@@ -149,13 +149,13 @@ AddEventHandler('TargetPlayerIsOffline', function(hex, reason, xAdmin, day)
             })
             TriggerClientEvent('chat:addMessage', -1, {
                 template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(255, 131, 0, 0.4); border-radius: 3px;"><i class="fas fa-exclamation-triangle"></i> [Punishment]<br>  {1}</div>',
-                args = { hex, '^1' .. hex .. ' ^0Banned, Reason: ^1' ..reason.." ^0Duration: t ^1".. (type(day) == 'string' and "Permanet" or time .." ^0 Day(s).")}
+                args = { hex, '^1' .. hex .. ' ^0has been banned, Reason: ^1' ..reason.." ^0Duration: t ^1".. (type(day) == 'string' and "Permanet" or time .." ^0 Day(s).")}
             })
             SetTimeout(5000, function()
                 ReloadBans()
             end)
         else
-            SendMessage(xAdmin, "[Database]", {255, 0, 0}, " ^0I Cant Find This Steam Hex. :( It Is InCorrect")
+            SendMessage(xAdmin, "[Database]", {255, 0, 0}, "^0I Can't find this steam hex. :( It is incorrect")
         end
     end)
 end)
@@ -189,20 +189,20 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         end
     end
     if Steam == nil or Lice == nil or Steam == "" or Lice == "" or Steam == "NONE" or Lice == "NONE" then
-        setKickReason("\n \n HR_BanSystem: \n Your Steam App Is Not Opened, First Open Steam App. \n Restart FiveM.")
+        setKickReason("\n \n HR_BanSystem: \n Your Steam identifier could not be fetched. \n Please restart your steam, then start your FiveM again.")
         CancelEvent()
         return
     end
     if GetNumPlayerTokens(source) == 0 or GetNumPlayerTokens(source) == nil or GetNumPlayerTokens(source) < 0 or GetNumPlayerTokens(source) == "null" or GetNumPlayerTokens(source) == "**Invalid**" or not GetNumPlayerTokens(source) then
         DiscordLog(source, "Max Token Numbers Are nil")
-        setKickReason("\n \n HR_BanSystem: \n There is a problem retrieving your fivem information \n Please Restart FiveM.")
+        setKickReason("\n \n HR_BanSystem: \n There is a problem retrieving your fivem informations \n Please Restart FiveM.")
         CancelEvent()
         return
     end
     if JoinCoolDown[Steam] == nil then
         JoinCoolDown[Steam] = os.time()
     elseif os.time() - JoinCoolDown[Steam] < 15 then 
-        setKickReason("\n \n HR_BanSystem: \n ErrorCode : #12\n \n Don't Spam The Connect Button")
+        setKickReason("\n \n HR_BanSystem: \n Don't spam the connect button!")
         CancelEvent()
         return
     else
@@ -218,7 +218,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
                             if d.Steam ~= tostring(Steam) then
                                 isBypassing = d.Expire
                             end
-                            setKickReason("\n \n HR_BanSystem: \n Ban ID: #"..d.ID.."\n Reason: "..d.Reason.."\n Expiration: You Have Been Banned For ".. ((type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet") and "Permanet" or DisplayTime((tonumber(d.Expire) - os.time()))) .." ! \nHWID: "..f)
+                            setKickReason("\n \n HR_BanSystem: \n Ban ID: #"..d.ID.."\n Reason: "..d.Reason.."\n Expiration: You have been banned for ".. ((type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet") and "Permanet" or DisplayTime((tonumber(d.Expire) - os.time()))) .." ! \nHWID: "..f)
                             CancelEvent()
                             break
                         else
@@ -234,10 +234,10 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         InitiateDatabase(tonumber(source))
     end
     if BannedAlready then
-        DiscordLog(source, "Tried To Join But He/She Is Banned (Rejected From Joining Before Loading Into Server)")
+        DiscordLog(source, "Has tried To join. (Rejected from joining before loading into the server)")
     end
     if isBypassing then
-        DiscordLog(source, "Tried To Join Using Bypass Method (Changed Steam Hex(New Account Banned Before Loading Into Server))")
+        DiscordLog(source, "Has tried To join using Bypass method by changing identifiers (New identifiers has been banned.)")
         BanNewAccount(tonumber(source), "Tried To Bypass HR_BanSystem", isBypassing)
     end
 end)
@@ -433,21 +433,21 @@ RegisterCommand('ban', function(source, args)
                             DiscordLog(tonumber(source), "Banned " .. tostring(args[1]) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) )
                             TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), args[2])
                         else
-                            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Incorrect Steam Hex.")
+                            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The entered steam hex is incorrect.")
                         end
                     end
                 else
-                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Ban Reason.")
+                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please enter a ban reason.")
                 end
             else
-                SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Ban Duration.")
+                SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please enter the ban duration.")
             end
         else
-            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please Enter Server ID Or Steam Hex.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Please enter the player server ID or steam hex.")
         end
     else
         if source ~= 0 then
-            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0You don't have admin's privilege.")
         end
     end
 end)
@@ -462,8 +462,8 @@ AddEventHandler("HR_BanSystem:CheckBan", function(hex)
     }, function(data)
         if data[1] then
             if data[1].isBanned == 1 then
-                DiscordLog(source, "Tried To Bypass BanSystem(KVP Method)")
-                DropPlayer(source, "kick reason: you were banned")
+                DiscordLog(source, "Has tried to Bypass the ban system with KVP Method")
+                DropPlayer(source, "You were already banned fromn this server!")
             end
         end
     end)
@@ -488,18 +488,18 @@ RegisterCommand('unban', function(source, args)
                     SetTimeout(5000, function()
                         ReloadBans()
                     end)
-                    DiscordLog(tonumber(source), "UnBanned " .. tostring(args[1]))
-                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^2Unabn Success.")
+                    DiscordLog(tonumber(source), "Unbanned " .. tostring(args[1]))
+                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^2Player unbanned successfully.")
                 else
-                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
+                    SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The entered steam hex is incorrect.")
                 end
             end)
         else
-            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The Entered Steam Is Incorrect.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The entered steam hex is incorrect.")
         end
     else
         if source ~= 0 then
-            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0You Are Not An Admin.")
+            SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0You don't have admin's privilege.")
         end
     end
 end)

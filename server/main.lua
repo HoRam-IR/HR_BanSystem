@@ -78,7 +78,7 @@ AddEventHandler('esx:playerLoaded', function(source)
                 for g = 0, GetNumPlayerTokens(source) - 1 do
                     if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
                         if (type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet") or os.time() < tonumber(d.Expire) then
-                            BannedAlready2 = true
+                            BannedAlready2 = tostring(d.Reason)
                             if d.Steam ~= tostring(Steam) then
                                 isBypassing2 = d.Expire
                             end
@@ -93,7 +93,7 @@ AddEventHandler('esx:playerLoaded', function(source)
         end
     end
     if BannedAlready2 then
-        DiscordLog(source, "Has tried To join. (Rejected from joining before loading into the server)")
+        DiscordLog(source, "Has tried To join. (Rejected from joining before loading into the server) Ban Reason: " .. BannedAlready2)
         DropPlayer(source, "You were banned from this server.")
     end
     if isBypassing2 then
@@ -214,7 +214,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
                 for g = 0, GetNumPlayerTokens(source) - 1 do
                     if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
                        if (type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet")  or os.time() < tonumber(d.Expire) then
-                            BannedAlready = true
+                            BannedAlready = tostring(d.Reason)
                             if d.Steam ~= tostring(Steam) then
                                 isBypassing = d.Expire
                             end
@@ -234,7 +234,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         InitiateDatabase(tonumber(source))
     end
     if BannedAlready then
-        DiscordLog(source, "Has tried To join. (Rejected from joining before loading into the server)")
+        DiscordLog(source, "Has tried To join. (Rejected from joining before loading into the server) Ban Reason: " .. BannedAlready)
     end
     if isBypassing then
         DiscordLog(source, "Has tried To join using Bypass method by changing identifiers (New identifiers has been banned.)")
@@ -423,14 +423,14 @@ RegisterCommand('ban', function(source, args)
                                     Hex = v
                                 end
                             end
-                            DiscordLog(tonumber(source), "Banned " .. tostring(GetPlayerName(target)) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) )
+                            DiscordLog(tonumber(source), "Banned " .. tostring(GetPlayerName(target)) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) .. " Reason: " .. table.concat(args, " ",3) )
                             TriggerEvent('Initiate:BanSql', Hex, tonumber(target), table.concat(args, " ",3), GetPlayerName(target), args[2])
                         else
                             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0Player Is Not Online.")
                         end
                     else
                         if string.find(args[1], "steam:") ~= nil then
-                            DiscordLog(tonumber(source), "Banned " .. tostring(args[1]) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) )
+                            DiscordLog(tonumber(source), "Banned " .. tostring(args[1]) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) .. " Reason: " .. table.concat(args, " ",3) )
                             TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), args[2])
                         else
                             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The entered steam hex is incorrect.")

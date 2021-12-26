@@ -12,7 +12,7 @@ CREATE TABLE `hr_bansystem` (
 	`Discord` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
 	`Xbox` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
 	`Live` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_bin',
-	`Tokens` LONGTEXT NOT NULL COLLATE 'utf8mb4_bin',
+	`Tokens` LONGTEXT NOT NULL DEFAULT '[]' COLLATE 'utf8mb4_bin',
 	`Reason` VARCHAR(50) NOT NULL COLLATE 'utf8mb4_bin',
 	`isBanned` INT(11) NOT NULL DEFAULT '0',
 	`Expire` INT(11) NOT NULL DEFAULT '0',

@@ -410,7 +410,7 @@ function BanThis(source, Reason, Times)
 end
 
 RegisterCommand('ban', function(source, args)
-    local xPlayer = ESX.GetPlayerFromId(source)
+    local source = source
     local target = tonumber(args[1])
     if source == 0 or IsPlayerAllowedToBan(source) then
         if args[1] then
@@ -431,7 +431,7 @@ RegisterCommand('ban', function(source, args)
                     else
                         if string.find(args[1], "steam:") ~= nil then
                             DiscordLog(tonumber(source), "Banned " .. tostring(args[1]) .. " for " .. (string.lower(tostring(args[2])) == 'permanet' and "Permanet" or (tonumber(args[2]) == 0 and "Permanet" or tonumber(args[2]))) .. " Reason: " .. table.concat(args, " ",3) )
-                            TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(xPlayer.source), args[2])
+                            TriggerEvent('TargetPlayerIsOffline', args[1], table.concat(args, " ",3), tonumber(source), args[2])
                         else
                             SendMessage(source, "[BanSystem]", {255, 0, 0}, " ^0The entered steam hex is incorrect.")
                         end

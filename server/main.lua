@@ -449,6 +449,20 @@ RegisterCommand('ban', function(source, args)
     end
 end)
 
+RegisterServerEvent("HR_BanSystem:ClientLoaded")
+AddEventHandler("HR_BanSystem:ClientLoaded", function()
+    local source = source
+    local ST = "None"
+    for k, v in ipairs(GetPlayerIdentifiers(source)) do
+        if string.sub(v, 1,string.len("steam:")) == "steam:" then
+            ST  = v
+            break
+        end
+    end
+    if ST == "None" then print(source.." Failed To Create User") return end
+    TriggerClientEvent("HR_BanSystem:playerLoaded", source, ST)
+end)
+
 RegisterServerEvent("HR_BanSystem:CheckBan")
 AddEventHandler("HR_BanSystem:CheckBan", function(hex)
     local source = source

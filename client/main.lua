@@ -1,14 +1,19 @@
-ESX = nil
 
-Citizen.CreateThread(function()
-    while ESX == nil do
-        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-        Citizen.Wait(1)
-    end
+AddEventHandler('onClientResourceStart', function(resourceName)
+  if (GetCurrentResourceName() ~= resourceName) then
+    return
+  end
+  Citizen.Wait(1000)
+  TriggerServerEvent("HR_BanSystem:ClientLoaded")
 end)
 
-RegisterNetEvent('esx:playerLoaded')
-AddEventHandler('esx:playerLoaded', function(xPlayer)
+AddEventHandler('playerSpawned', function()
+  Citizen.Wait(1000)
+  TriggerServerEvent("HR_BanSystem:ClientLoaded")
+end)
+
+RegisterNetEvent('HR_BanSystem:playerLoaded')
+AddEventHandler('HR_BanSystem:playerLoaded', function(Iden)
     TriggerEvent('chat:addSuggestion', '/ban', 'Ban a Player', {
         { name="ID / Steam", help="ID Or SteamHex" },
         { name="Duration", help="Ban Duration( 1 Equals 1 Day )"},
@@ -17,13 +22,13 @@ AddEventHandler('esx:playerLoaded', function(xPlayer)
     TriggerEvent('chat:addSuggestion', '/unban', 'Unban A Player', {
         { name="Steam Hex", help="SteamHex" }
     })
-    local Steam = xPlayer.identifier
-	local kvp = GetResourceKvpString("KireSefid")
+    local Steam = Iden
+	local kvp = GetResourceKvpString("KireSefid") -- lamo must of you dont know what this mean XD
 	if kvp == nil or kvp == "" then
 		Identifier = {}
 		table.insert(Identifier, {hex = Steam})
 		local json = json.encode(Identifier)
-		SetResourceKvp("KireSefid", json)
+		SetResourceKvp("KireSefid", json) -- lamo must of you dont know what this mean XD
 	else
         local Identifier = json.decode(kvp)
         local Find = false

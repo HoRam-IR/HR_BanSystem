@@ -1,4 +1,4 @@
-
+local IpBanCheck = true -- Script should check ip for banning?
 local JoinCoolDown = {}
 local DatabaseStuff = {}
 local BannedAccounts = {}
@@ -73,7 +73,7 @@ AddEventHandler('esx:playerLoaded', function(source)
         for c, d in pairs(b) do 
             for e, f in pairs(json.decode(d.Tokens)) do
                 for g = 0, GetNumPlayerTokens(source) - 1 do
-                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
+                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or (IpBanCheck and d.IP == tostring(IP) or false) or d.Steam == tostring(Steam) then
                         if (type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet") or os.time() < tonumber(d.Expire) then
                             BannedAlready2 = tostring(d.Reason)
                             if d.Steam ~= tostring(Steam) then
@@ -209,7 +209,7 @@ AddEventHandler('playerConnecting', function(name, setKickReason)
         for c, d in pairs(b) do 
             for e, f in pairs(json.decode(d.Tokens)) do
                 for g = 0, GetNumPlayerTokens(source) - 1 do
-                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or d.IP == tostring(IP) or d.Steam == tostring(Steam) then
+                    if GetPlayerToken(source, g) == f or d.License == tostring(Lice) or d.License2 == tostring(Lice2) or d.Live == tostring(Live) or d.Xbox == tostring(Xbox) or d.Discord == tostring(Discord) or (IpBanCheck and d.IP == tostring(IP) or false) or d.Steam == tostring(Steam) then
                        if (type(d.Expire) == 'string' and string.lower(d.Expire) == "permanet")  or os.time() < tonumber(d.Expire) then
                             BannedAlready = tostring(d.Reason)
                             if d.Steam ~= tostring(Steam) then

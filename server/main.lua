@@ -459,7 +459,7 @@ AddEventHandler("HR_BanSystem:ClientLoaded", function()
             break
         end
     end
-    if ST == "None" then print(source.." Failed To Create User") return end
+    if ST == "None" then print(source.." Failed To KVP Check") return end
     TriggerClientEvent("HR_BanSystem:playerLoaded", source, ST)
 end)
 

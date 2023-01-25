@@ -17,3 +17,5 @@ server_scripts {
 server_exports {
 	'BanThis'
 }
+
+shared_script '@es_extended/imports.lua'
